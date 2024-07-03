@@ -1,6 +1,9 @@
 #include "Renderer.h"
 #include "Input.h"
 #include "Vector2.h"
+#include "Particle.h"
+#include "Random.h"
+#include "ETime.h"
 
 #include <SDL.h>
 #include <iostream>
@@ -18,21 +21,27 @@ int main(int argc, char* argv[])
 	Input input;
 	input.Initialize();
 
+	Time time;
+
+
 	Vector2 v1{ 400, 500 };
 	Vector2 v2{ 700, 500 };
 
 	std::vector<Vector2> points;
-	//for (int i = 0; i < 100; i++)
+
+	std::vector<Particle> particles;
+	//for (int i = 0; i < 0; i++)
 	//{
-	//	points.push_back(Vector2{ rand() % 800, rand() % 600 });
+	//	uint8_t color[4]{ rand() % 255, rand() % 255, rand() % 255, rand() % 255 };
+	//	particles.push_back(Particle({ rand() % 800, rand() % 800 }, { randomf(100, 300), 0.0f }, 1, color));
 	//}
+
+
 	bool quit = false;
 	while (!quit)
 	{
-		
-		//input
-		//update
-		//draw
+		time.Tick();
+
 
 		//INPUT
 		input.Update();
@@ -44,28 +53,34 @@ int main(int argc, char* argv[])
 
 		//UPDATE
 		Vector2 mousePosition = input.GetMousePosition();
-		if (input.GetMouseButtonDown(0) && !input.GetPreviousMouseButtonDown(0))
+		if (!input.GetMouseButtonDown(0) && input.GetPreviousMouseButtonDown(0))
 		{
-			points.push_back(mousePosition);
-		}
-
-		if (input.GetMouseButtonDown(0) && input.GetPreviousMouseButtonDown(0))
-		{
-			float distance = (points.back() - mousePosition).Length();
-			if (distance > 10)
+			std::array<uint8_t, 4> color{ {random(255), random(255), random(255), 0}};
+			for (int i = 0; i < 1000; i++)
 			{
-				points.push_back(mousePosition);
+				particles.push_back(Particle(mousePosition, { randomf(-300, 300), randomf(-300, 300) }, randomf(0.4, 1), color));
 			}
 		}
 
+		for (Particle& particle : particles)
+		{
+			particle.Update(time.GetDeltaTime());
+			if (particle.position.x > 800) particle.position.x = 0;
+			if (particle.position.x < 0) particle.position.x = 800;
+		}
+
+		//DRAW
 		renderer.SetColor(0, 0, 0, 0);
 		renderer.BeginFrame();
 
-		renderer.SetColor(500, 0, 500, 0);
-		for (int i = 0; points.size() > 1 && i < points.size() - 1; i++)
-		{
 
-			renderer.DrawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+		for (Particle particle : particles)
+		{
+			if (particle.lifespan > 0)
+			{
+				renderer.SetColor(particle.color[0], particle.color[1], particle.color[2], particle.color[3]);
+				particle.Draw(renderer);
+			}
 		}
 
 		renderer.EndFrame();
@@ -88,17 +103,5 @@ int main(int argc, char* argv[])
 	}
 
 	return 0;
-
-	
-//	+ create a std::vector of Vector2 outside the main loop, these are the points
-//main loop (while):
-//  // input
-//  + check if mouse button is down and previous mouse button is up (mouse pressed)
-//    + add (push_back) mouse position onto points vector
-//  // render
-//  // use for loop to render lines (point[i] -> point[i + 1])
-//  + for (int i = 0; points.size() > 1 && i < points.size() - 1; i++)
-//    + set color (have fun and set random color :))
-//    + renderer draw line (points[i].x, points[i].y, points[i + 1].x, points[i + 1].y)
 
 }
