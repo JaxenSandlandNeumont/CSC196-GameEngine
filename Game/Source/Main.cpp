@@ -5,6 +5,7 @@
 #include "Random.h"
 #include "ETime.h"
 #include "MathUtils.h"
+#include "Model.h"
 
 #include <fmod.hpp>
 #include <SDL.h>
@@ -51,13 +52,19 @@ int main(int argc, char* argv[])
 	audio->createSound("snare.wav", FMOD_DEFAULT, 0, &sound);
 	sounds.push_back(sound);
 
-	Vector2 v1{ 400, 500 };
-	Vector2 v2{ 700, 500 };
-
-	std::vector<Vector2> points;
-
 	std::vector<Particle> particles;
 	float offset = 0.0f;
+
+	std::vector<Vector2> points;
+	points.push_back(Vector2{ -5, 5});
+	points.push_back(Vector2{ 0, -5});
+	points.push_back(Vector2{ 5, 5});
+	points.push_back(Vector2{ -5, 5});
+	Color color{ 1, 1, 1, 0 };
+	Model model{ points, color };
+	Vector2 position{ 400, 300 };
+	float rotation = 0;
+
 	//for (int i = 0; i < 0; i++)
 	//{
 	//	uint8_t color[4]{ rand() % 255, rand() % 255, rand() % 255, rand() % 255 };
@@ -82,11 +89,21 @@ int main(int argc, char* argv[])
 			quit = true;
 		}
 
+		Vector2 velocity{ 0, 0 };
+		if (input.GetKeyDown(SDL_SCANCODE_LEFT))	velocity.x = -100;
+		if (input.GetKeyDown(SDL_SCANCODE_RIGHT))	velocity.x = 100;
+		if (input.GetKeyDown(SDL_SCANCODE_UP))		velocity.y = -100;
+		if (input.GetKeyDown(SDL_SCANCODE_DOWN))	velocity.y = 100;
+
+
+		position = position + (velocity * time.GetDeltaTime());
+		rotation = rotation + time.GetDeltaTime();
+
 		// Q = bass
 		// W = snare
 		// E = hi-hat
 		if (input.GetKeyDown(SDL_SCANCODE_Q) && !input.GetPrevKeyDown(SDL_SCANCODE_Q))
-		{
+{
 			audio->playSound(sounds[0], 0, false, nullptr); //Play bass
 		}
 		if (input.GetKeyDown(SDL_SCANCODE_W) && !input.GetPrevKeyDown(SDL_SCANCODE_W))
@@ -95,7 +112,7 @@ int main(int argc, char* argv[])
 		}
 		if (input.GetKeyDown(SDL_SCANCODE_E) && !input.GetPrevKeyDown(SDL_SCANCODE_E))
 		{
-			audio->playSound(sounds[2], 0, false, nullptr); //Play hi-hat/open-hat
+			audio->playSound(sounds[2], 0, false, nullptr); //Play hi-hat/close-hat
 		}
 
 
@@ -132,7 +149,7 @@ int main(int argc, char* argv[])
 				float x = Math::Cos(Math::DegToRad(angle + offset)) * Math::Sin((offset + angle) * 0.1f) * radius;
 				float y = Math::Sin(Math::DegToRad(angle + offset)) * Math::Sin((offset + angle) * 0.1f) * radius;
 
-				renderer.DrawRect(400 + x, 300 + y, 2.0f, 2.0f);
+				//renderer.DrawRect(400 + x, 300 + y, 2.0f, 2.0f);
 			}
 		}
 
@@ -147,7 +164,7 @@ int main(int argc, char* argv[])
 		}
 
 
-		
+		model.Draw(renderer, position, rotation, 5);
 
 
 		renderer.EndFrame();
