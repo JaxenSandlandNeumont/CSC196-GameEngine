@@ -9,5 +9,5 @@ void Particle::Update(float dt)
 
 void Particle::Draw(Renderer& renderer)
 {
-	renderer.DrawPoint(position.x, position.y);
+	renderer.DrawRect(position.x, position.y, 10.0f, 10.0f);
 }

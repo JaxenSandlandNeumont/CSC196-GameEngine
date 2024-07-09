@@ -4,7 +4,9 @@
 #include "Particle.h"
 #include "Random.h"
 #include "ETime.h"
+#include "MathUtils.h"
 
+#include <fmod.hpp>
 #include <SDL.h>
 #include <iostream>
 #include <cstdlib>
@@ -23,6 +25,31 @@ int main(int argc, char* argv[])
 
 	Time time;
 
+	// create audio system
+	FMOD::System* audio;
+	FMOD::System_Create(&audio);
+	void* extradriverdata = nullptr;
+	audio->init(32, FMOD_INIT_NORMAL, extradriverdata);
+	std::vector<FMOD::Sound*> sounds;
+	FMOD::Sound* sound = nullptr;
+
+	audio->createSound("bass.wav", FMOD_DEFAULT, 0, &sound);
+	sounds.push_back(sound);
+
+	audio->createSound("clap.wav", FMOD_DEFAULT, 0, &sound);
+	sounds.push_back(sound);
+
+	audio->createSound("close-hat.wav", FMOD_DEFAULT, 0, &sound);
+	sounds.push_back(sound);
+
+	audio->createSound("cowbell.wav", FMOD_DEFAULT, 0, &sound);
+	sounds.push_back(sound);
+
+	audio->createSound("open-hat.wav", FMOD_DEFAULT, 0, &sound);
+	sounds.push_back(sound);
+
+	audio->createSound("snare.wav", FMOD_DEFAULT, 0, &sound);
+	sounds.push_back(sound);
 
 	Vector2 v1{ 400, 500 };
 	Vector2 v2{ 700, 500 };
@@ -30,6 +57,7 @@ int main(int argc, char* argv[])
 	std::vector<Vector2> points;
 
 	std::vector<Particle> particles;
+	float offset = 0.0f;
 	//for (int i = 0; i < 0; i++)
 	//{
 	//	uint8_t color[4]{ rand() % 255, rand() % 255, rand() % 255, rand() % 255 };
@@ -37,11 +65,14 @@ int main(int argc, char* argv[])
 	//}
 
 
+	audio->playSound(sounds[0], 0, false, nullptr);
+
+
 	bool quit = false;
 	while (!quit)
 	{
 		time.Tick();
-
+		audio->update();
 
 		//INPUT
 		input.Update();
@@ -51,6 +82,23 @@ int main(int argc, char* argv[])
 			quit = true;
 		}
 
+		// Q = bass
+		// W = snare
+		// E = hi-hat
+		if (input.GetKeyDown(SDL_SCANCODE_Q) && !input.GetPrevKeyDown(SDL_SCANCODE_Q))
+		{
+			audio->playSound(sounds[0], 0, false, nullptr); //Play bass
+		}
+		if (input.GetKeyDown(SDL_SCANCODE_W) && !input.GetPrevKeyDown(SDL_SCANCODE_W))
+		{
+			audio->playSound(sounds[5], 0, false, nullptr); //Play snare
+		}
+		if (input.GetKeyDown(SDL_SCANCODE_E) && !input.GetPrevKeyDown(SDL_SCANCODE_E))
+		{
+			audio->playSound(sounds[2], 0, false, nullptr); //Play hi-hat/open-hat
+		}
+
+
 		//UPDATE
 		Vector2 mousePosition = input.GetMousePosition();
 		if (!input.GetMouseButtonDown(0) && input.GetPreviousMouseButtonDown(0))
@@ -58,7 +106,7 @@ int main(int argc, char* argv[])
 			std::array<uint8_t, 4> color{ {random(255), random(255), random(255), 0}};
 			for (int i = 0; i < 1000; i++)
 			{
-				particles.push_back(Particle(mousePosition, { randomf(-300, 300), randomf(-300, 300) }, randomf(0.4, 1), color));
+				particles.push_back(Particle(mousePosition, randomOnUnitCircle() * randomf(10, 300), randomf(0.4, 1), color));
 			}
 		}
 
@@ -74,6 +122,21 @@ int main(int argc, char* argv[])
 		renderer.BeginFrame();
 
 
+		renderer.SetColor(255, 255, 255, 0);
+		{
+			int steps = 20;
+			float radius = 60;
+			offset += (90 * time.GetDeltaTime());
+			for (float angle = 0; angle < 360; angle += 360 / steps)
+			{
+				float x = Math::Cos(Math::DegToRad(angle + offset)) * Math::Sin((offset + angle) * 0.1f) * radius;
+				float y = Math::Sin(Math::DegToRad(angle + offset)) * Math::Sin((offset + angle) * 0.1f) * radius;
+
+				renderer.DrawRect(400 + x, 300 + y, 2.0f, 2.0f);
+			}
+		}
+
+
 		for (Particle particle : particles)
 		{
 			if (particle.lifespan > 0)
@@ -82,6 +145,10 @@ int main(int argc, char* argv[])
 				particle.Draw(renderer);
 			}
 		}
+
+
+		
+
 
 		renderer.EndFrame();
 	}
