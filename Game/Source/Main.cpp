@@ -6,6 +6,7 @@
 #include "ETime.h"
 #include "MathUtils.h"
 #include "Model.h"
+#include "Transform.h"
 
 #include <fmod.hpp>
 #include <SDL.h>
@@ -56,23 +57,15 @@ int main(int argc, char* argv[])
 	float offset = 0.0f;
 
 	std::vector<Vector2> points;
-	points.push_back(Vector2{ -5, 5});
-	points.push_back(Vector2{ 0, -5});
-	points.push_back(Vector2{ 5, 5});
-	points.push_back(Vector2{ -5, 5});
-	Color color{ 1, 1, 1, 0 };
+	points.push_back(Vector2{ 5, 0 });
+	points.push_back(Vector2{ -5, -5 });
+	points.push_back(Vector2{ -5, 5 });
+	points.push_back(Vector2{ 5, 0 });
+	Color color{ 1, 1, 0 };
 	Model model{ points, color };
-	Vector2 position{ 400, 300 };
-	float rotation = 0;
+	Transform transform{ { renderer.getWidth() >> 1 , renderer.getHeight() >> 1 }, 0, 5 };
 
-	//for (int i = 0; i < 0; i++)
-	//{
-	//	uint8_t color[4]{ rand() % 255, rand() % 255, rand() % 255, rand() % 255 };
-	//	particles.push_back(Particle({ rand() % 800, rand() % 800 }, { randomf(100, 300), 0.0f }, 1, color));
-	//}
-
-
-	audio->playSound(sounds[0], 0, false, nullptr);
+	// >> 1 shifts binary over 1
 
 
 	bool quit = false;
@@ -89,15 +82,23 @@ int main(int argc, char* argv[])
 			quit = true;
 		}
 
-		Vector2 velocity{ 0, 0 };
-		if (input.GetKeyDown(SDL_SCANCODE_LEFT))	velocity.x = -100;
-		if (input.GetKeyDown(SDL_SCANCODE_RIGHT))	velocity.x = 100;
-		if (input.GetKeyDown(SDL_SCANCODE_UP))		velocity.y = -100;
-		if (input.GetKeyDown(SDL_SCANCODE_DOWN))	velocity.y = 100;
 
+		float thrust = 0;
+		if (input.GetKeyDown(SDL_SCANCODE_LEFT))
+		{
+			transform.rotation -= Math::DegToRad(200) * time.GetDeltaTime();
+		}
+		if (input.GetKeyDown(SDL_SCANCODE_RIGHT))
+		{
+			transform.rotation += Math::DegToRad(200) * time.GetDeltaTime();
+		}
+		if (input.GetKeyDown(SDL_SCANCODE_UP))		thrust = 400;
+		if (input.GetKeyDown(SDL_SCANCODE_DOWN))	thrust = -400;
 
-		position = position + (velocity * time.GetDeltaTime());
-		rotation = rotation + time.GetDeltaTime();
+		Vector2 velocity = Vector2{ thrust, 0.0f }.Rotate(transform.rotation);
+		transform.position += velocity * time.GetDeltaTime();
+		transform.position.x = Math::Wrap(transform.position.x, (float)renderer.getWidth());
+		transform.position.y = Math::Wrap(transform.position.y, (float)renderer.getHeight());
 
 		// Q = bass
 		// W = snare
@@ -139,20 +140,6 @@ int main(int argc, char* argv[])
 		renderer.BeginFrame();
 
 
-		renderer.SetColor(255, 255, 255, 0);
-		{
-			int steps = 20;
-			float radius = 60;
-			offset += (90 * time.GetDeltaTime());
-			for (float angle = 0; angle < 360; angle += 360 / steps)
-			{
-				float x = Math::Cos(Math::DegToRad(angle + offset)) * Math::Sin((offset + angle) * 0.1f) * radius;
-				float y = Math::Sin(Math::DegToRad(angle + offset)) * Math::Sin((offset + angle) * 0.1f) * radius;
-
-				//renderer.DrawRect(400 + x, 300 + y, 2.0f, 2.0f);
-			}
-		}
-
 
 		for (Particle particle : particles)
 		{
@@ -164,26 +151,10 @@ int main(int argc, char* argv[])
 		}
 
 
-		model.Draw(renderer, position, rotation, 5);
+		model.Draw(renderer, transform);
 
 
 		renderer.EndFrame();
-	}
-
-	const int MAXWIDTH = 800;
-	while (false)
-	{
-		//int value = rand() % 1000; // generate a number between 0-999
-		//SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
-		//SDL_RenderClear(renderer);
-		//
-		//for (int i = 0; i < value; i++)
-		//{
-		//	SDL_SetRenderDrawColor(renderer, rand() % 256, rand() % 256, rand() % 256, 0); // create random color
-		//	SDL_RenderDrawLine(renderer, rand() % MAXWIDTH, rand() % MAXWIDTH, rand() % MAXWIDTH, rand() % MAXWIDTH);
-		//}
-		//SDL_RenderPresent(renderer);
-		
 	}
 
 	return 0;

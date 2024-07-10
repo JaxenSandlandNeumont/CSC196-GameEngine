@@ -73,6 +73,15 @@ namespace Math
 	inline T Clamp(T v, T min, T max)
 	{
 		return (v < min) ? min : ((v > min) ? max : v);
+	}
 
+	inline int Wrap(int value, int max)
+	{
+		return value % max + ((value < 0) ? max : 0);
+	}
+
+	inline float Wrap(float value, float max)
+	{
+		return std::fmodf(value, max) + ((value < 0.0f) ? max : 0.0f);
 	}
 }

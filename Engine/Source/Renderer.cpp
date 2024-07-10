@@ -18,7 +18,8 @@ void Renderer::ShutDown()
 
 bool Renderer::CreateWindow(std::string title, int width, int height)
 {
-
+	m_width = width;
+	m_height = height;
 	m_window = SDL_CreateWindow(title.c_str(),
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		width, height,

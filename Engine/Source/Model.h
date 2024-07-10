@@ -2,6 +2,7 @@
 #include "Vector2.h"
 #include "Color.h"
 #include "Renderer.h"
+#include "Transform.h"
 #include <vector>
 
 class Model
@@ -14,6 +15,7 @@ public:
 	{};
 
 	void Draw(Renderer& renderer, const Vector2& position, const float angle, const float scale);
+	void Draw(Renderer& renderer, Transform& transform);
 
 private:
 	std::vector<Vector2> m_points;
