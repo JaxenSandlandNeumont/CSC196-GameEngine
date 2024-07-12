@@ -7,6 +7,7 @@
 #include "MathUtils.h"
 #include "Model.h"
 #include "Transform.h"
+#include "ModelData.h"
 
 #include <fmod.hpp>
 #include <SDL.h>
@@ -62,8 +63,9 @@ int main(int argc, char* argv[])
 	points.push_back(Vector2{ -5, 5 });
 	points.push_back(Vector2{ 5, 0 });
 	Color color{ 1, 1, 0 };
-	Model model{ points, color };
-	Transform transform{ { renderer.getWidth() >> 1 , renderer.getHeight() >> 1 }, 0, 5 };
+	std::vector<std::vector<Vector2>> modelPoints = ModelData::GetModel(2);
+	Model model{ modelPoints, color };
+	Transform transform{ { renderer.getWidth() >> 1 , renderer.getHeight() >> 1 }, 0, 15 };
 
 	// >> 1 shifts binary over 1
 
@@ -124,7 +126,7 @@ int main(int argc, char* argv[])
 			std::array<uint8_t, 4> color{ {random(255), random(255), random(255), 0}};
 			for (int i = 0; i < 1000; i++)
 			{
-				particles.push_back(Particle(mousePosition, randomOnUnitCircle() * randomf(10, 300), randomf(0.4, 1), color));
+				particles.push_back(Particle(mousePosition, randomOnUnitCircle() * randomf(10, 300), randomf(0.4f, 1), color));
 			}
 		}
 
@@ -150,8 +152,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
-
-		model.Draw(renderer, transform);
+		model.DrawShapes(renderer, transform);
 
 
 		renderer.EndFrame();
