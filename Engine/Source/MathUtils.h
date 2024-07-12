@@ -28,7 +28,7 @@ namespace Math
 
 	inline float Atan2(float y, float x)
 	{
-		std::atan2f(y, x);
+		return std::atan2f(y, x);
 	}
 
 	/// <summary>
