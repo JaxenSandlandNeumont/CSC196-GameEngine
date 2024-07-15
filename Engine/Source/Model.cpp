@@ -20,7 +20,15 @@ void Model::Draw(Renderer& renderer, const Vector2& position, const float angle,
 
 void Model::Draw(Renderer& renderer, Transform& transform)
 {
-	Model::Draw(m_points, renderer, transform);
+	if (!m_points.empty())
+	{
+		Model::Draw(m_points, renderer, transform);
+	}
+	else
+	{
+		Model::DrawShapes(renderer, transform);
+	}
+	
 }
 
 void Model::Draw(std::vector<Vector2> points, Renderer& renderer, Transform& transform)
