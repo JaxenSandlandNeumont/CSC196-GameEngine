@@ -2,13 +2,45 @@
 #include "ModelData.h"
 #include "Player.h"
 #include "Scene.h"
+#include "FileManager.h"
 
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <string>
 
 int main(int argc, char* argv[])
 {
+
+
+
+
+	bool levelManagerMode = true;
+	if (levelManagerMode)
+	{
+		FileManager* lm = new FileManager();
+
+		char drName[] = "LevelData";
+		int result = lm->mkDir(drName);
+
+
+		lm->WriteFile("LevelData/test2.txt", "string 1\nstring 2\nstring 3");
+		std::vector<std::string> lines = lm->ReadFile("LevelData/test1.txt");
+	
+		for (std::string line : lines)
+		{
+			std::cout << line << "\n";
+		}
+		return 0;
+	}
+
+
+
+
+
+
+
+
 	g_engine.Initialize();
 
 	Time time;
@@ -47,7 +79,7 @@ int main(int argc, char* argv[])
 
 	Scene* scene = new Scene();
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 300; i++)
 	{
 		Transform transform{ { randomf(0, 800) , randomf(0, 600)}, 0, randomf(1,5)};
 
