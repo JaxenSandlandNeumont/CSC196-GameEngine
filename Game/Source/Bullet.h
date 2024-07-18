@@ -18,6 +18,8 @@ public:
 
 	void Update(float dt);
 
+	virtual void OnCollision(Actor* actor);
+
 
 private:
 

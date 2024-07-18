@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
+#include <SDL_ttf.h>
 
 int main(int argc, char* argv[])
 {
@@ -44,7 +45,20 @@ int main(int argc, char* argv[])
 
 	g_engine.Initialize();
 
+
+	//Create Systems
+
+
+
 	Time time;
+
+	Font* font = new Font();
+	font->Load("Finland.ttf", 20);
+
+
+	Text* text = new Text(font);
+	text->Create(g_engine.GetRenderer(), "Hello World", Color{ 1.0f, 1.0f, 1.0f, 1.0f });
+
 
 	// create audio system
 	
@@ -76,25 +90,28 @@ int main(int argc, char* argv[])
 
 	Scene* scene = new Scene();
 
-	for (int i = 0; i < 20; i++)
-	{
-		Transform transform{ { randomf(0, 800) , randomf(0, 600)}, 0, randomf(1,5)};
 
-		Player* player = new Player( 200.0f, transform, model);
-		player->SetDamping(2.0f);
-		scene->AddActor(player);
-	}
+	Transform transform{ { randomf(0, 800) , randomf(0, 600)}, 0, 5};
 
-	std::vector<std::vector<Vector2>> enemyModel = ModelData::GetModel(1);
-	Color enemyColor{ 1, 0, 0 };
-	Model enemyModelCollection{ modelPoints, enemyColor };
-	auto* enemy = new Enemy(400.0f, Transform{ {300, 300 }, 0, 2 }, &enemyModelCollection);
+	Player* player = new Player(10, transform, model);
+	player->SetDamping(4.0f);
+	player->SetTag("Player");
+	scene->AddActor(player);
+
+
+
 
 	bool quit = false;
 	while (!quit)
 	{
+		g_engine.GetAudio().Update();
+
+
 		time.Tick();
-		g_engine.Update();
+
+		g_engine.GetAudio().AddSound("bass.wav");
+
+		g_engine.GetInput().Update();
 
 		if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_ESCAPE))
 		{
@@ -102,6 +119,10 @@ int main(int argc, char* argv[])
 		}
 
 		scene->Update(time.GetDeltaTime());
+
+		if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_Q) && !g_engine.GetInput().GetPrevKeyDown(SDL_SCANCODE_Q)) {
+			g_engine.GetAudio().PlaySound("bass.wav");
+		}
 
 
 		//float thrust = 0;
@@ -163,23 +184,23 @@ int main(int argc, char* argv[])
 
 
 		//DRAW
+		// clear screen
 		g_engine.GetRenderer().SetColor(0, 0, 0, 0);
 		g_engine.GetRenderer().BeginFrame();
 
 
 
-		for (Particle particle : particles)
-		{
-			if (particle.lifespan > 0)
-			{
-				g_engine.GetRenderer().SetColor(particle.color[0], particle.color[1], particle.color[2], particle.color[3]);
-				particle.Draw(g_engine.GetRenderer());
-			}
-		}
+		// draw line
+
+
+		text->Draw(g_engine.GetRenderer(), 40, 40);
 
 		scene->Draw(g_engine.GetRenderer());
 
 
+
+
+		// show screen
 		g_engine.GetRenderer().EndFrame();
 	}
 

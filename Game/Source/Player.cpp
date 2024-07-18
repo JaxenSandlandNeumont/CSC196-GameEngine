@@ -1,10 +1,9 @@
 #include "Player.h"
 #include "Engine.h"
-#include "Enemy.h"
 #include "Bullet.h"
-#include "ModelData.h"
+#include "Scene.h"
+#include <iostream>
 
-#include <SDL.h>
 
 void Player::Update(float dt)
 {
@@ -19,20 +18,22 @@ void Player::Update(float dt)
 		m_transform.rotation += Math::DegToRad(200) * dt;
 	}
 
-	Vector2 acceleration = Vector2{ thrust, 0.0f }.Rotate(m_transform.rotation) * thrust;
-	m_velocity += acceleration * dt;
 
-	if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_UP))		thrust = m_speed;
-	if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_DOWN))	thrust = -m_speed;
+	if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_UP))        thrust = m_speed;
+	if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_DOWN))    thrust = -m_speed;
+	Vector2 acceleration = Vector2{ 1.0f, 0.0f }.Rotate(m_transform.rotation) * thrust;
+	m_velocity += acceleration;
 
-	Vector2 velocity = Vector2{ thrust, 0.0f }.Rotate(m_transform.rotation);
-	m_transform.position += velocity * dt;
-	m_transform.position.x = Math::Wrap(m_transform.position.x, (float)g_engine.GetRenderer().getWidth());
-	m_transform.position.y = Math::Wrap(m_transform.position.y, (float)g_engine.GetRenderer().getHeight());
+	m_transform.position.x = Math::Wrap(m_transform.position.x, (float)g_engine.GetRenderer().GetWidth());
+	m_transform.position.y = Math::Wrap(m_transform.position.y, (float)g_engine.GetRenderer().GetHeight());
 
-	if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_SPACE) && m_fireTimer <= 0)
-	{
-		m_fireTimer = 0.5;
+
+
+	//fire
+	m_fireTimer -= dt;
+	if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_SPACE) && m_fireTimer <= 0) {
+
+		m_fireTimer = 0.5f;
 
 		std::vector<Vector2> points;
 		points.push_back(Vector2{ 5, 0 });
@@ -48,10 +49,14 @@ void Player::Update(float dt)
 		Bullet* bullet = new Bullet{ 400.0f, transform, model };
 		m_scene->AddActor(bullet);
 		bullet->SetLifespan(1.0f);
-
 	}
 
-
 	Actor::Update(dt);
+}
 
+void Player::OnCollision(Actor* actor)
+{
+	if (actor->GetTag() == "Enemy") {
+		m_destroyed = true;
+	}
 }

@@ -9,7 +9,7 @@ void Actor::Update(float dt)
 		m_lifespan -= dt;
 		if (m_lifespan <= 0)
 		{
-			m_destroy = true;
+			m_destroyed = true;
 		}
 	}
 
