@@ -9,10 +9,12 @@ class Model
 {
 public:
 	Model() = default;
+
 	Model(std::vector<Vector2>& points, Color& color) :
 		m_points{ points },
 		m_color{ color }
 	{};
+
 	Model(std::vector<std::vector<Vector2>>& shapes, Color& color) :
 		m_shapes{ shapes },
 		m_color{ color }

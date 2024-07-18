@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "ModelData.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "Scene.h"
 #include "FileManager.h"
 
@@ -15,7 +16,7 @@ int main(int argc, char* argv[])
 
 
 
-	bool levelManagerMode = true;
+	bool levelManagerMode = false;
 	if (levelManagerMode)
 	{
 		FileManager* lm = new FileManager();
@@ -61,17 +62,13 @@ int main(int argc, char* argv[])
 	std::vector<Particle> particles;
 	float offset = 0.0f;
 
-	std::vector<Vector2> points;
-	points.push_back(Vector2{ 5, 0 });
-	points.push_back(Vector2{ -5, -5 });
-	points.push_back(Vector2{ -5, 5 });
-	points.push_back(Vector2{ 5, 0 });
+
 	Color color{ 1, 1, 0 };
 
 	const int modelNum = 2;
 
 	std::vector<std::vector<Vector2>> modelPoints = ModelData::GetModel(modelNum);
-	Model model{ modelPoints, color};
+	Model* model = new Model{ modelPoints, color};
 	//Transform transform{ { g_engine.GetRenderer().getWidth() >> 1 , g_engine.GetRenderer().getHeight() >> 1}, 0, 5};
 
 	// >> 1 shifts binary over 1
@@ -79,14 +76,19 @@ int main(int argc, char* argv[])
 
 	Scene* scene = new Scene();
 
-	for (int i = 0; i < 300; i++)
+	for (int i = 0; i < 20; i++)
 	{
 		Transform transform{ { randomf(0, 800) , randomf(0, 600)}, 0, randomf(1,5)};
 
-		Player* player = new Player( 200.0f, transform, &model);
+		Player* player = new Player( 200.0f, transform, model);
 		player->SetDamping(2.0f);
 		scene->AddActor(player);
 	}
+
+	std::vector<std::vector<Vector2>> enemyModel = ModelData::GetModel(1);
+	Color enemyColor{ 1, 0, 0 };
+	Model enemyModelCollection{ modelPoints, enemyColor };
+	auto* enemy = new Enemy(400.0f, Transform{ {300, 300 }, 0, 2 }, &enemyModelCollection);
 
 	bool quit = false;
 	while (!quit)
