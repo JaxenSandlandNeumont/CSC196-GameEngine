@@ -1,9 +1,11 @@
 #pragma once
 
 #include <list>
+#include <vector>
 
 class Renderer;
 class Actor;
+class Vector2;
 
 class Scene
 {
@@ -20,6 +22,7 @@ public:
 
 protected:
 	std::list <Actor*> m_actors;
+	std::vector<std::vector<Vector2>> levelShapes;
 
 };
 

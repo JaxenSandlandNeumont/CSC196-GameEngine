@@ -32,8 +32,15 @@ public:
 	Renderer& GetRenderer() { return *m_renderer; }
 	Audio& GetAudio() { return *m_audio; }
 	Input& GetInput() { return *m_input; }
+	Time& GetTime() { return *m_time; }
+
+	bool IsQuit() { return quit; }
+
 
 private:
+	bool quit{ false };
+
+	Time* m_time{ nullptr };
 
 	Renderer* m_renderer;
 	Input* m_input;

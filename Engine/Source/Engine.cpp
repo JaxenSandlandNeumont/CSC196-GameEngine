@@ -15,6 +15,8 @@ bool Engine::Initialize()
 
 	(*m_audio).Initialize();
 
+	m_time = new Time();
+
 	return true;
 }
 
@@ -27,6 +29,23 @@ void Engine::Shutdown()
 
 void Engine::Update()
 {
+
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
+	{
+		if (event.type == SDL_QUIT)
+		{
+			quit == true;
+		}
+		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+		{
+			quit = true;
+		}
+	}
+	
+
+
+	m_time->Tick();
 
 	m_input->Update();
 	m_audio->Update();

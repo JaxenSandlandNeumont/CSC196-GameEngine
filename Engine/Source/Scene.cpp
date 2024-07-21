@@ -3,6 +3,11 @@
 
 void Scene::Update(float dt)
 {
+
+	std::erase_if(m_actors, [](Actor* actor) {return actor->m_destroyed; });
+
+
+
 	for (Actor* actor : m_actors)
 	{
 		actor->Update(dt);

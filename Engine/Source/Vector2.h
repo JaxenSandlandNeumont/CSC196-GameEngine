@@ -19,12 +19,14 @@ struct Vector2
 	Vector2 operator - (const Vector2& v) const { return Vector2{ x - v.x, y - v.y }; }
 	Vector2 operator * (const Vector2& v) const { return Vector2{ x * v.x, y * v.y }; }
 	Vector2 operator / (const Vector2& v) const { return Vector2{ x / v.x, y / v.y }; }
+	Vector2 operator % (const Vector2& v) const { return Vector2{ (int)x % (int)v.x, (int)y % (int)v.y }; }
 	
 	
 	Vector2 operator + (float s) const { return Vector2{ x + s, y + s }; }
 	Vector2 operator - (float s) const { return Vector2{ x - s, y - s }; }
 	Vector2 operator * (float s) const { return Vector2{ x * s, y * s }; }
 	Vector2 operator / (float s) const { return Vector2{ x / s, y / s }; }
+	Vector2 operator % (float s) const { return Vector2{ (int)x % (int)s, (int)y % (int)s }; }
 
 	Vector2 operator += (const Vector2& v) { x += v.x; y += v.y; return *this; }
 	Vector2 operator -= (const Vector2& v) { x -= v.x; y -= v.y; return *this; }

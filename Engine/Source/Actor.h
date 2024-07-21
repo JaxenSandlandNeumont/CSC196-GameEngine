@@ -34,8 +34,8 @@ public:
 
 protected:
 	std::string m_tag;
-	bool m_destroyed = false;
-	float m_lifespan = -1;
+	bool m_destroyed{ false };
+	float m_lifespan = 0;
 
 	Transform m_transform;
 	Vector2 m_velocity{ 0, 0 };
