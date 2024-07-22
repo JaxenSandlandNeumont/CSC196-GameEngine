@@ -21,11 +21,14 @@ public:
 	void Shutdown();
 	void Update(float dt);
 	void Draw(Renderer& renderer);
+	std::vector<std::vector<Vector2>>* DrawMode();
+	void RunGame(int level);
 
 protected:
 	eState m_state{ eState::Title };
 	Scene* m_scene{ nullptr };
 	Engine* m_engine{ nullptr };
 	float m_respawnTimer{ 0 };
+	float g_respawnTimer{ 0 };
 
 };

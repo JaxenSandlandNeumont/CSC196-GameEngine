@@ -35,10 +35,12 @@ void Engine::Update()
 	{
 		if (event.type == SDL_QUIT)
 		{
+			Shutdown();
 			quit == true;
 		}
 		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
 		{
+			Shutdown();
 			quit = true;
 		}
 	}

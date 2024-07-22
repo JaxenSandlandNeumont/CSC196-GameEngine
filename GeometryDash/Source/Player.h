@@ -9,21 +9,30 @@ public:
 	Player() = default;
 	Player(const Transform& transform) : Actor{ transform } {}
 
-	Player(float speed, const Transform& transform, Model* model) :
+	Player(float jumpSpeed, const Transform& transform, Model* model, Vector2 hitbox[5]) :
 		Actor{ transform , model },
-		m_speed{ speed }
+		m_jumpSpeed{ jumpSpeed }
 
-	{}
+	{
+		SetHitBox(hitbox);
+	}
+
 	Player(const Transform& transform, Model* model) :
 		Actor{ transform, model }
 	{}
 
+	Player(const Transform& transform, Model* model, Vector2 hitbox[5]) :
+		Actor{ transform, model }
+	{
+		SetHitBox(hitbox);
+	}
+
 	void Update(float dt);
 	void OnCollision(Actor* actor);
+	
 
 private:
-	float m_speed = 0;
-	float m_fireTimer = 0;
+	float m_jumpSpeed = 100;
 
 
 };

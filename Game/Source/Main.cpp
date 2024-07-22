@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 
 	const int modelNum = 2;
 
-	std::vector<std::vector<Vector2>> modelPoints = ModelData::GetModel(modelNum);
+	std::vector<std::vector<Vector2>> modelPoints = ModelData::GetFriendlyModel(modelNum);
 	Model* model = new Model{ modelPoints, color};
 	//Transform transform{ { g_engine.GetRenderer().getWidth() >> 1 , g_engine.GetRenderer().getHeight() >> 1}, 0, 5};
 

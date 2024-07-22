@@ -151,12 +151,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Bullet.cpp" />
-    <ClCompile Include="Source\Enemy.cpp" />
     <ClCompile Include="Source\FileManager.cpp" />
     <ClCompile Include="Source\Game.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\ModelData.cpp" />
+    <ClCompile Include="Source\Object.cpp" />
     <ClCompile Include="Source\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -165,11 +164,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Bullet.h" />
-    <ClInclude Include="Source\Enemy.h" />
     <ClInclude Include="Source\FileManager.h" />
     <ClInclude Include="Source\Game.h" />
     <ClInclude Include="Source\ModelData.h" />
+    <ClInclude Include="Source\Object.h" />
     <ClInclude Include="Source\Player.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

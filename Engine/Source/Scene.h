@@ -1,11 +1,10 @@
 #pragma once
-
 #include <list>
 #include <vector>
 
 class Renderer;
 class Actor;
-class Vector2;
+struct Vector2;
 
 class Scene
 {
@@ -16,13 +15,15 @@ public:
 	void Draw(Renderer& renderer);
 
 	void AddActor(Actor* actor);
+	void SetPlayer(Actor* actor) { m_player = actor; };
 
 	template<typename T>
 	T* GetActor();
 
 protected:
+	Actor* m_player;
 	std::list <Actor*> m_actors;
-	std::vector<std::vector<Vector2>> levelShapes;
+	std::vector<std::vector<Vector2>> levelActors;
 
 };
 

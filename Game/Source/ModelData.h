@@ -5,7 +5,7 @@
 class ModelData
 {
 public:
-    static const std::vector<std::vector<Vector2>>& GetModel(uint8_t modelNum)
+    static const std::vector<std::vector<Vector2>>& GetFriendlyModel(uint8_t modelNum)
     {
         static const std::vector<std::vector<Vector2>> emptyModel{};
         switch (modelNum)

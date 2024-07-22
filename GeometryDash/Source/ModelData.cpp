@@ -1,5 +1,8 @@
 #include "ModelData.h"
 
+
+// -----------Friendly model------------------------------------
+
 const std::vector<std::vector<Vector2>> ModelData::m_cube0 =
 {
     {
@@ -54,5 +57,16 @@ const std::vector<std::vector<Vector2>> ModelData::m_ship2 =
     },
     {
         {0.6f, -4.3f}, {1.2f, -4.3f}, {1.2f, -4.7f}, {0.6f, -4.7f} //Left gun tip
+    }
+};
+
+
+
+// -------------Level models--------------------------------------
+
+const std::vector<std::vector<Vector2>> ModelData::m_spike0 =
+{
+    {
+        {-25, -25}, {0, 25}, {25, -25}, {-25, -25}
     }
 };

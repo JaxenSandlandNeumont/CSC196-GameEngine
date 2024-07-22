@@ -1,6 +1,6 @@
 #include "Player.h"
+#include "Game.h"
 #include "Engine.h"
-#include "Bullet.h"
 #include "Scene.h"
 #include <iostream>
 
@@ -8,55 +8,63 @@
 void Player::Update(float dt)
 {
 	float thrust = 0;
-	if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_LEFT))
+	float gravity = 2000.0f;
+
+
+	if (g_engine.GetInput().GetMouseButtonDown(0) && !g_engine.GetInput().GetPreviousMouseButtonDown(0)
+		|| g_engine.GetInput().GetKeyDown(SDL_SCANCODE_SPACE) && !g_engine.GetInput().GetPrevKeyDown(SDL_SCANCODE_SPACE))
 	{
-		m_transform.rotation -= Math::DegToRad(200) * dt;
+		if (m_landed)
+		{
+			thrust -= m_jumpSpeed;
+		}
+		
 	}
 
-	if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_RIGHT))
+	Vector2 acceleration = (Vector2{ 0.0f, 1.0f } * thrust);
+	if (!m_landed)
 	{
-		m_transform.rotation += Math::DegToRad(200) * dt;
+		acceleration += (Vector2(0.0f, 1.0f) * (gravity * g_engine.GetTime().GetDeltaTime()));
+	}
+	else
+	{
+		m_velocity.y = 0;
 	}
 
-
-	if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_UP))        thrust = m_speed;
-	if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_DOWN))    thrust = -m_speed;
-	Vector2 acceleration = Vector2{ 1.0f, 0.0f }.Rotate(m_transform.rotation) * thrust;
 	m_velocity += acceleration;
 
 	m_transform.position.x = Math::Wrap(m_transform.position.x, (float)g_engine.GetRenderer().GetWidth());
 	m_transform.position.y = Math::Wrap(m_transform.position.y, (float)g_engine.GetRenderer().GetHeight());
 
 
-
-	//fire
-	m_fireTimer -= dt;
-	if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_SPACE) && m_fireTimer <= 0) {
-
-		m_fireTimer = 0.5f;
-
-		std::vector<Vector2> points;
-		points.push_back(Vector2{ 5, 0 });
-		points.push_back(Vector2{ -5, -5 });
-		points.push_back(Vector2{ -5, 5 });
-		points.push_back(Vector2{ 5, 0 });
-
-		// actor
-		Color color{ 1, 0, 0, 1 };
-		Model* model = new Model{ points, color };
-		Transform transform{ m_transform.position, m_transform.rotation, 1.0f };
-
-		Bullet* bullet = new Bullet{ 400.0f, transform, model };
-		m_scene->AddActor(bullet);
-		bullet->SetLifespan(1.0f);
-	}
-
 	Actor::Update(dt);
 }
 
 void Player::OnCollision(Actor* actor)
 {
-	if (actor->GetTag() == "Enemy") {
-		m_destroyed = true;
+	
+}
+
+int Actor::Collided(Actor* collider)
+{
+	
+	for (int i = 0; i < 4; i++)
+	{
+		if (collider->yMax + collider->GetTransform().position.y >= yMin + GetTransform().position.y && collider->yMin + +collider->GetTransform().position.y <= yMax + GetTransform().position.y) // Match Y values
+		{
+			if (collider->xMin + collider->GetTransform().position.x <= xMin + GetTransform().position.x && collider->xMax + collider->GetTransform().position.x >= xMax + GetTransform().position.x) // Match X values
+			{
+				if (!m_landed)
+				{
+					GetTransform().position.y = -collider->yMax + collider->GetTransform().position.y + yMin + yMin;
+					m_landed = true;
+				}
+				
+				return 1;
+			}
+		}
+		m_landed = false;
+
 	}
+	return 0;
 }
