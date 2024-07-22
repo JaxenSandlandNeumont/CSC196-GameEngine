@@ -33,6 +33,7 @@ public:
 
 private:
 	float m_jumpSpeed = 100;
+	float m_maxFallSpeed = 700;
 
 
 };

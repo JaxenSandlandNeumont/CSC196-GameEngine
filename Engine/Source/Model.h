@@ -23,6 +23,7 @@ public:
 	void Draw(Renderer& renderer, const Vector2& position, const float angle, const float scale);
 	void Draw(Renderer& renderer, Transform& transform);
 	void Draw(std::vector<Vector2> points, Renderer& renderer, Transform& transform);
+	void Draw(Vector2 hitbox[5], Renderer& renderer, Transform& transform);
 	void DrawShapes(Renderer& renderer, Transform& transform);
 
 private:

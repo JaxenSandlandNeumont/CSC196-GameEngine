@@ -1,10 +1,13 @@
 #pragma once
 #include "Transform.h"
+#include "Vector2.h"
 #include <string>
+#include <vector>
 
 class Scene;
 class Model;
 class Renderer;
+class vector;
 
 class Actor {
 
@@ -20,6 +23,7 @@ public:
 
 	virtual void Update(float dt);
 	virtual void Draw(Renderer& renderer);
+	virtual void DrawHitbox(Renderer& renderer);
 
 	void SetDamping(float damping) { m_damping = damping; }
 	void SetLifespan(float lifespan) { m_lifespan = lifespan; }
@@ -36,6 +40,7 @@ public:
 public:
 
 	void SetHitBox(Vector2 hitbox[5]);
+	void SetHitBox(std::vector<Vector2> hitbox);
 	int xMin = -5;
 	int xMax = 5;
 	int yMin = -5;

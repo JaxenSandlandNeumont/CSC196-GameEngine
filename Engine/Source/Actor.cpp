@@ -22,6 +22,10 @@ void Actor::Draw(Renderer& renderer)
 {
 	m_model->Draw(renderer, m_transform);
 }
+void Actor::DrawHitbox(Renderer& renderer)
+{
+	m_model->Draw(m_hitbox, renderer, m_transform);
+}
 
 void Actor::SetHitBox(Vector2 hitbox[5])
 {
@@ -30,10 +34,30 @@ void Actor::SetHitBox(Vector2 hitbox[5])
 		m_hitbox[i] = hitbox[i];
 
 		xMin = (hitbox[i].x < xMin) ? hitbox[i].x : xMin;
-		xMax = (hitbox[i].x > xMin) ? hitbox[i].x : xMax;
+		xMax = (hitbox[i].x > xMax) ? hitbox[i].x : xMax;
+
 		yMin = (hitbox[i].y < yMin) ? hitbox[i].y : yMin;
-		yMax = (hitbox[i].y < yMin) ? hitbox[i].y : yMax;
+		yMax = (hitbox[i].y > yMax) ? hitbox[i].y : yMax;
 	}
 	
 
+}
+
+
+void Actor::SetHitBox(std::vector<Vector2> hitbox)
+{
+	if (hitbox.size() > 5 || hitbox.size() < 5)
+	{
+		//std::cout << "Invalid hitbox vector to array conversion";
+	}
+
+	for (int i = 0; i < 5; i++)
+	{
+		m_hitbox[i] = hitbox.at(i);
+
+		xMin = (hitbox.at(i).x < xMin) ? hitbox.at(i).x : xMin;
+		xMax = (hitbox.at(i).x > xMin) ? hitbox.at(i).x : xMax;
+		yMin = (hitbox.at(i).y < yMin) ? hitbox.at(i).y : yMin;
+		yMax = (hitbox.at(i).y < yMin) ? hitbox.at(i).y : yMax;
+	}
 }

@@ -1,6 +1,5 @@
-#include <SDL.h>
-#include <SDL_ttf.h>
 #include "Renderer.h"
+#include "Engine.h"
 #include <iostream>
 
 bool Renderer::Initialize()
@@ -70,6 +69,11 @@ void Renderer::EndFrame()
 void Renderer::SetColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	SDL_SetRenderDrawColor(m_renderer, r, g, b, a);
+}
+
+void Renderer::SetColor(Color color)
+{
+	SDL_SetRenderDrawColor(m_renderer, Color::ToInt(color.r), Color::ToInt(color.g), Color::ToInt(color.b), Color::ToInt(color.a));
 }
 
 void Renderer::DrawLine(int x1, int y1, int x2, int y2)

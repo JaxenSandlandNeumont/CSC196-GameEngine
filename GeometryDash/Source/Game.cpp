@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "FileManager.h"
+#include "Random.h"
 #include "Player.h"
 #include "Object.h"
 #include "ModelData.h"
@@ -16,7 +17,7 @@ void Game::Shutdown()
 void Game::Update(float dt)
 {
 
-	m_scene->Update(dt);
+	m_scene->Update(dt, m_progressSpeed);
 }
 
 void Game::Draw(Renderer& renderer)
@@ -46,7 +47,7 @@ void Game::Draw(Renderer& renderer)
 	default:
 		break;
 	}
-	m_scene->Draw(renderer);
+	m_scene->Draw(renderer, m_drawHitboxes);
 }
 
 std::vector<std::vector<Vector2>>* Game::DrawMode()
@@ -232,7 +233,7 @@ void Game::RunGame(int level)
 
 	Color color{ 1, 1, 0 };
 
-	const int modelNum = 2;
+	const int modelNum = 0;
 
 
 
@@ -241,34 +242,40 @@ void Game::RunGame(int level)
 
 	std::vector<std::vector<Vector2>> modelPoints = ModelData::GetFriendlyModel(modelNum);
 	Model* model = new Model{ modelPoints, color };
-	Transform transform{ {  g_engine.GetRenderer().GetWidth() >> 1  , 300 }, 0, 5 };
+	Transform transform{ {  g_engine.GetRenderer().GetWidth() >> 1  , 300 }, 0};
 	Vector2 playerHitBox[5]
 	{
-		{-5 , -5 }, {-5, 5 }, {5, 5}, {5, -5}, {-5, -5}
+		{-25 , -25 }, {-25, 25 }, {25, 25}, {25, -25}, {-25, -25}
 	};
 
 	Player* player = new Player(800, transform, model, playerHitBox);
 	player->SetDamping(0.0f);
 	scene->SetPlayer(player);
 
+	for (int i = 0; i < 50; i++)
+	{
+		int randomHeight = random(400, 550);
+		Transform transform1{ { 550 + 200 * i , randomHeight }, 0 };
+		std::vector<Vector2> basePlatePoints
+		{
+			{-50 , -10 }, {-50, 10}, {50, 10}, {50, -10}, {-50, -10}
+		};
+		model = new Model{ basePlatePoints, color };
+		Object* basePlate = new Object(transform1, model, basePlatePoints);
+		scene->AddActor(basePlate);
+	}
 
-
-	Transform transform1{ { 399 , 500 }, 0, 1 };
+	Transform transform1{ { 399 , 500 }, 0};
 	std::vector<Vector2> basePlatePoints
 	{
 		{-400 , -10 }, {-400, 10}, {400, 10}, {400, -10}, {-400, -10}
 	};
-	Vector2 basePlateHitBox[5]
-	{
-		{-400 , -10 }, {-400, 10}, {400, 10}, {400, -10}, {-400, -10}
-	};
 	model = new Model{ basePlatePoints, color };
-	Object* basePlate = new Object(transform1, model, basePlateHitBox);
+	Object* basePlate = new Object(transform1, model, basePlatePoints);
 	scene->AddActor(basePlate);
 
 
 	g_engine.GetAudio().AddSound("bass.wav");
-
 
 
 	while (!g_engine.IsQuit())
@@ -278,7 +285,7 @@ void Game::RunGame(int level)
 		time.Tick();
 		g_engine.Update();
 
-		scene->Update(time.GetDeltaTime());
+		scene->Update(time.GetDeltaTime(), m_progressSpeed);
 
 		if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_Q) && !g_engine.GetInput().GetPrevKeyDown(SDL_SCANCODE_Q)) {
 			g_engine.GetAudio().PlaySound("bass.wav");
@@ -319,7 +326,7 @@ void Game::RunGame(int level)
 
 		text->Draw(g_engine.GetRenderer(), 40, 40);
 
-		scene->Draw(g_engine.GetRenderer());
+		scene->Draw(g_engine.GetRenderer(), m_drawHitboxes);
 
 
 

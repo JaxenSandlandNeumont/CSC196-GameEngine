@@ -16,6 +16,4 @@ struct Transform
 	{}
 
 
-
-
 };

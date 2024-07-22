@@ -11,8 +11,8 @@ class Scene
 public:
 	Scene() = default;
 
-	void Update(float dt);
-	void Draw(Renderer& renderer);
+	void Update(float dt, float progressSpeed);
+	void Draw(Renderer& renderer, bool drawHitboxes);
 
 	void AddActor(Actor* actor);
 	void SetPlayer(Actor* actor) { m_player = actor; };

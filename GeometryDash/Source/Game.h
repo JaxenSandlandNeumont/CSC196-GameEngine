@@ -31,4 +31,8 @@ protected:
 	float m_respawnTimer{ 0 };
 	float g_respawnTimer{ 0 };
 
+private:
+	float m_progressSpeed = 250.0f;
+	bool m_drawHitboxes = false;
+
 };

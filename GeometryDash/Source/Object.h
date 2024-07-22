@@ -17,6 +17,14 @@ public:
 		SetHitBox(hitbox);
 	}
 
+	
+	Object(const Transform& transform, Model* model, std::vector<Vector2> hitbox) :
+		Actor{ transform, model }
+	{
+		SetHitBox(hitbox);
+	}
+	
+
 
 	void Update(float dt);
 	void OnCollision(Actor* actor);
