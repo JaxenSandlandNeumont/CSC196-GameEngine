@@ -8,24 +8,46 @@
 void Player::Update(float dt)
 {
 	float thrust = 0;
-	float gravity = 2000.0f;
 
 
-	if (g_engine.GetInput().GetMouseButtonDown(0) && !g_engine.GetInput().GetPreviousMouseButtonDown(0)
-		|| g_engine.GetInput().GetKeyDown(SDL_SCANCODE_SPACE) && !g_engine.GetInput().GetPrevKeyDown(SDL_SCANCODE_SPACE))
+	if (g_engine.GetInput().GetPreviousMouseButtonDown(0)
+		|| g_engine.GetInput().GetPrevKeyDown(SDL_SCANCODE_SPACE))
 	{
-		if (m_landed)
+		if (m_landed && !m_jumpHoldTimer)
 		{
 			thrust -= m_jumpSpeed;
 		}
+
+		m_jumpHoldTimer += g_engine.GetTime().GetDeltaTime();
+
+		if (m_jumpHoldTimer > 0.1f && !m_jumpBoost1)
+		{
+			m_jumpBoost1 = true;
+			thrust -= m_jumpSpeed / 4;
+			std::cout << "Boost 1!";
+		}
+
+		if (m_jumpHoldTimer > 0.2f && !m_jumpBoost2)
+		{
+			m_jumpBoost2 = true;
+			thrust -= m_jumpSpeed / 6;
+			std::cout << "Boost 2!";
+		}
 		
 	}
+	else
+	{
+		m_jumpHoldTimer = 0.0f;
+		m_jumpBoost1 = false;
+		m_jumpBoost2 = false;
+	}
+
 
 	Vector2 acceleration = (Vector2{ 0.0f, 1.0f } * thrust);
 	if (!m_landed)
 	{
 		
-		acceleration += (Vector2(0.0f, 1.0f) * (gravity * g_engine.GetTime().GetDeltaTime())); //Add gravity
+		acceleration += (Vector2(0.0f, 1.0f) * (m_gravity * g_engine.GetTime().GetDeltaTime())); //Add gravity
 		m_velocity += acceleration;
 
 		if (m_velocity.y > m_maxFallSpeed)
@@ -68,22 +90,47 @@ int Actor::Collided(Actor* collider)
 	float colliderXMin = collider->xMin + collider->GetTransform().position.x;
 
 
-	bool playerMinBelowColliderYMax = colliderYMax > yMin + GetTransform().position.y;
-	bool playerMaxAboveColliderYMin = colliderYMin < yMax + GetTransform().position.y;
+	float selfYMin = yMin + GetTransform().position.y;
+	float selfYMax = yMax + GetTransform().position.y;
+	float selfXMax = xMax + GetTransform().position.x;
+	float selfXMin = xMin + GetTransform().position.x;
 
-	bool playerMinBelowColliderXMax = colliderXMax > xMin + GetTransform().position.x;
-	bool playerMaxAboveColliderXMin = colliderXMin < xMax + GetTransform().position.x;
+
+	bool playerMinBelowColliderYMax = colliderYMax > selfYMin;
+	bool playerMaxAboveColliderYMin = colliderYMin < selfYMax;
+
+	bool playerMinBelowColliderXMax = colliderXMax > selfXMin;
+	bool playerMaxAboveColliderXMin = colliderXMin < selfXMax;
 
 	//bool xCollide = collider->xMin + collider->GetTransform().position.x <= xMax + GetTransform().position.x && collider->xMax + collider->GetTransform().position.x >= xMin + GetTransform().position.x;
 
+	bool collided = playerMaxAboveColliderXMin && playerMinBelowColliderXMax && playerMaxAboveColliderYMin && playerMinBelowColliderYMax;
 
+	if (collided)
+	{ 
+		float playerBottomDistanceFromColliderTop = Math::absValue(selfYMax - colliderYMin);
+		float playerTopDistanceFromColliderBottom = Math::absValue(selfYMin - colliderYMax);
 
-	if (playerMaxAboveColliderXMin && playerMinBelowColliderXMax && playerMaxAboveColliderYMin && playerMinBelowColliderYMax)
-	{ //Put player on top of object
+		float speedAdjustment = (Math::absValue(m_velocity.y) > 400) ? 2.0f : 0.0f;
 
-		GetTransform().position.y = colliderYMax - 39.5f;
+		if (playerBottomDistanceFromColliderTop < 5 + speedAdjustment)
+		{
+			GetTransform().position.y = colliderYMin - yMax * 0.98f;
+			std::cout << "Safe landing!\n";
+		}
+		else if (playerTopDistanceFromColliderBottom < 4 + speedAdjustment)
+		{
+			m_velocity.y = (m_velocity.y < 0) ? 2000.0f * g_engine.GetTime().GetDeltaTime() : m_velocity.y;
+			std::cout << "Ceiling hit!\n";
+			return 0;
+		}
+		else
+		{
+			std::cout << "DEATH\n";
+			return -1;
+		}
+		
 		return 1;
-			
 	}
 	else
 	{

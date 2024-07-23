@@ -66,7 +66,7 @@ namespace Math
 	template<typename T>
 	T absValue(T value)
 	{
-		return (value > 0) ? -value : value;
+		return (value > 0) ? value : -value;
 	}
 
 	template<typename T>

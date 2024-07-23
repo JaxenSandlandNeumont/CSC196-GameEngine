@@ -20,6 +20,23 @@ void Game::Update(float dt)
 	m_scene->Update(dt, m_progressSpeed);
 }
 
+void Game::CreateRandomPlatforms(int amount, Scene* scene)
+{
+	Color color{ 1, 1, 0 };
+	for (int i = 0; i < 50; i++)
+	{
+		int randomHeight = random(400, 550);
+		Transform transform1{ { 1200 + 200 * i , randomHeight }, 0 };
+		std::vector<Vector2> basePlatePoints
+		{
+			{-50 , -20 }, {-50, 0}, {50, 0}, {50, -20}, {-50, -20}
+		};
+		Model* model = new Model{ basePlatePoints, color };
+		Object* basePlate = new Object(transform1, model, basePlatePoints);
+		scene->AddActor(basePlate);
+	}
+}
+
 void Game::Draw(Renderer& renderer)
 {
 	switch (m_state)
@@ -211,8 +228,8 @@ void Game::RunGame(int level)
 
 
 	Text* text = new Text(font);
-	text->Create(g_engine.GetRenderer(), "Hello World", Color{ 1.0f, 1.0f, 1.0f, 1.0f });
-
+	text->Create(g_engine.GetRenderer(), "Click to begin", Color{ 1.0f, 1.0f, 1.0f, 1.0f });
+	
 
 	// create audio system
 
@@ -231,7 +248,7 @@ void Game::RunGame(int level)
 	float offset = 0.0f;
 
 
-	Color color{ 1, 1, 0 };
+
 
 	const int modelNum = 0;
 
@@ -239,40 +256,34 @@ void Game::RunGame(int level)
 
 	Scene* scene = new Scene();
 
+	CreateRandomPlatforms(50, scene);
+
+	Color color{ 1, 1, 0 };
+
 
 	std::vector<std::vector<Vector2>> modelPoints = ModelData::GetFriendlyModel(modelNum);
+	std::vector<Vector2> playerHitbox = ModelData::GetFriendlyModel(modelNum)[0];
 	Model* model = new Model{ modelPoints, color };
-	Transform transform{ {  g_engine.GetRenderer().GetWidth() >> 1  , 300 }, 0};
-	Vector2 playerHitBox[5]
-	{
-		{-25 , -25 }, {-25, 25 }, {25, 25}, {25, -25}, {-25, -25}
-	};
+	Transform transform{ {  g_engine.GetRenderer().GetWidth() >> 1 , 400 }, 0};
 
-	Player* player = new Player(800, transform, model, playerHitBox);
-	player->SetDamping(0.0f);
+	Player* player = new Player(600, transform, model, playerHitbox);
 	scene->SetPlayer(player);
 
-	for (int i = 0; i < 50; i++)
-	{
-		int randomHeight = random(400, 550);
-		Transform transform1{ { 550 + 200 * i , randomHeight }, 0 };
-		std::vector<Vector2> basePlatePoints
-		{
-			{-50 , -10 }, {-50, 10}, {50, 10}, {50, -10}, {-50, -10}
-		};
-		model = new Model{ basePlatePoints, color };
-		Object* basePlate = new Object(transform1, model, basePlatePoints);
-		scene->AddActor(basePlate);
-	}
+	
 
-	Transform transform1{ { 399 , 500 }, 0};
+	Transform transform1{ { 600 , 650 }, 0};
 	std::vector<Vector2> basePlatePoints
 	{
-		{-400 , -10 }, {-400, 10}, {400, 10}, {400, -10}, {-400, -10}
+		{-600 , -200 }, {-600, 0}, {600, 0}, {600, -200}, {-600, -200}
 	};
 	model = new Model{ basePlatePoints, color };
 	Object* basePlate = new Object(transform1, model, basePlatePoints);
 	scene->AddActor(basePlate);
+
+
+	Transform transform2{ { 600 , 300 }, 0};
+	Object* basePlate2 = new Object(transform2, model, basePlatePoints);
+	scene->AddActor(basePlate2);
 
 
 	g_engine.GetAudio().AddSound("bass.wav");
@@ -327,7 +338,6 @@ void Game::RunGame(int level)
 		text->Draw(g_engine.GetRenderer(), 40, 40);
 
 		scene->Draw(g_engine.GetRenderer(), m_drawHitboxes);
-
 
 
 

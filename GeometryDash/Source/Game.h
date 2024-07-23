@@ -20,6 +20,7 @@ public:
 	void Initialize();
 	void Shutdown();
 	void Update(float dt);
+	void CreateRandomPlatforms(int amount, Scene* scene);
 	void Draw(Renderer& renderer);
 	std::vector<std::vector<Vector2>>* DrawMode();
 	void RunGame(int level);
@@ -32,7 +33,7 @@ protected:
 	float g_respawnTimer{ 0 };
 
 private:
-	float m_progressSpeed = 250.0f;
+	float m_progressSpeed = 325.0f;
 	bool m_drawHitboxes = false;
 
 };

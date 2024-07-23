@@ -56,8 +56,8 @@ void Actor::SetHitBox(std::vector<Vector2> hitbox)
 		m_hitbox[i] = hitbox.at(i);
 
 		xMin = (hitbox.at(i).x < xMin) ? hitbox.at(i).x : xMin;
-		xMax = (hitbox.at(i).x > xMin) ? hitbox.at(i).x : xMax;
+		xMax = (hitbox.at(i).x > xMax) ? hitbox.at(i).x : xMax;
 		yMin = (hitbox.at(i).y < yMin) ? hitbox.at(i).y : yMin;
-		yMax = (hitbox.at(i).y < yMin) ? hitbox.at(i).y : yMax;
+		yMax = (hitbox.at(i).y > yMax) ? hitbox.at(i).y : yMax;
 	}
 }
