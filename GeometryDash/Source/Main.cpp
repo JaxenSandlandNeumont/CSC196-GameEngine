@@ -13,9 +13,6 @@
 int main(int argc, char* argv[])
 {
 
-
-
-
 	bool levelManagerMode = false;
 	if (levelManagerMode)
 	{
@@ -25,9 +22,9 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-
+ 
 	Game* game = new Game{};
-	game->RunGame(0);
+	game->Start(Game::eState::Endless);
 
 	
 

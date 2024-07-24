@@ -3,6 +3,7 @@
 #include "Vector2.h"
 #include <string>
 #include <vector>
+#include <memory>
 
 class Scene;
 class Model;
@@ -32,8 +33,7 @@ public:
 
 	Transform& GetTransform() { return m_transform; }
 
-	virtual void OnCollision(Actor* actor) = 0;
-	virtual int Collided(Actor* collider);
+	virtual int Collided(Actor* collider) { return 0; }
 
 	friend class Scene;
 
@@ -52,6 +52,7 @@ protected:
 	bool m_destroyed{ false };
 	float m_lifespan = 0;
 	bool m_landed = false;
+	bool m_canJump = false;
 
 	Transform m_transform;
 	Vector2 m_velocity{ 0, 0 };
@@ -59,6 +60,5 @@ protected:
 	float m_damping = 0;
 
 	Model* m_model{ nullptr };
-	Scene* m_scene{ nullptr };
 
 };

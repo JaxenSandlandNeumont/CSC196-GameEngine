@@ -26,6 +26,5 @@ public:
 	
 
 
-	void Update(float dt);
-	void OnCollision(Actor* actor);
+	void Update(float dt) {	Actor::Update(dt); }
 };

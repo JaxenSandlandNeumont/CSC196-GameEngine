@@ -1,13 +1,20 @@
 #pragma once
 #include "Particle.h"
+#include "Engine.h"
 
 void Particle::Update(float dt)
 {
 	position = position + (velocity * dt);
-	lifespan = lifespan - dt;
+	m_lifespan -= dt;
+
+	if (m_lifespan <= 0.0f)
+	{
+		m_isActive = false;
+	}
 }
 
-void Particle::Draw(Renderer& renderer)
+void const Particle::Draw(Renderer& renderer)
 {
-	renderer.DrawRect(position.x, position.y, 10.0f, 10.0f);
+	g_engine.GetRenderer().SetColor(m_color);
+	renderer.DrawRect(position.x, position.y, 3.0f, 3.0f);
 }

@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include "Scene.h"
 #include <iostream>
+#include <memory>
 
 
 void Player::Update(float dt)
@@ -15,23 +16,34 @@ void Player::Update(float dt)
 	{
 		if (m_landed && !m_jumpHoldTimer)
 		{
+			m_jumpHoldTimer = 0.0f;
+			m_jumpBoost1 = false;
+			m_jumpBoost2 = false;
+
 			thrust -= m_jumpSpeed;
+			std::cout << "Boost 0! \n";
+			m_jumpHoldTimer += g_engine.GetTime().GetDeltaTime();
 		}
 
-		m_jumpHoldTimer += g_engine.GetTime().GetDeltaTime();
+		if (m_jumpHoldTimer)
+		{
+			m_jumpHoldTimer += g_engine.GetTime().GetDeltaTime();
+		}
+
+
 
 		if (m_jumpHoldTimer > 0.1f && !m_jumpBoost1)
 		{
 			m_jumpBoost1 = true;
 			thrust -= m_jumpSpeed / 4;
-			std::cout << "Boost 1!";
+			std::cout << "Boost 1!\n ";
 		}
 
 		if (m_jumpHoldTimer > 0.2f && !m_jumpBoost2)
 		{
 			m_jumpBoost2 = true;
 			thrust -= m_jumpSpeed / 6;
-			std::cout << "Boost 2!";
+			std::cout << "Boost 2! \n";
 		}
 		
 	}
@@ -76,12 +88,7 @@ void Player::Update(float dt)
 	Actor::Update(dt);
 }
 
-void Player::OnCollision(Actor* actor)
-{
-	
-}
-
-int Actor::Collided(Actor* collider)
+int Player::Collided(Actor* collider)
 {
 	
 	float colliderYMax = collider->yMax + collider->GetTransform().position.y;
@@ -113,20 +120,21 @@ int Actor::Collided(Actor* collider)
 
 		float speedAdjustment = (Math::absValue(m_velocity.y) > 400) ? 2.0f : 0.0f;
 
-		if (playerBottomDistanceFromColliderTop < 5 + speedAdjustment)
+		if (playerBottomDistanceFromColliderTop < 7 + speedAdjustment)
 		{
 			GetTransform().position.y = colliderYMin - yMax * 0.98f;
-			std::cout << "Safe landing!\n";
+			//std::cout << "Safe landing!\n";
 		}
-		else if (playerTopDistanceFromColliderBottom < 4 + speedAdjustment)
+		else if (playerTopDistanceFromColliderBottom < 5 + speedAdjustment)
 		{
 			m_velocity.y = (m_velocity.y < 0) ? 2000.0f * g_engine.GetTime().GetDeltaTime() : m_velocity.y;
-			std::cout << "Ceiling hit!\n";
+			//std::cout << "Ceiling hit!\n";
 			return 0;
 		}
 		else
 		{
-			std::cout << "DEATH\n";
+			std::cout << "DEATH FROM " << playerBottomDistanceFromColliderTop << "\n";
+			m_destroyed = true;
 			return -1;
 		}
 		
@@ -138,3 +146,4 @@ int Actor::Collided(Actor* collider)
 	}
 	return 0;
 }
+

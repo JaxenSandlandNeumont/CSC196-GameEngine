@@ -1,6 +1,7 @@
 #pragma once
 #include "Vector2.h"
 #include "Renderer.h"
+#include "Color.h"
 
 #include <array>
 
@@ -8,8 +9,9 @@ struct Particle
 {
 	Vector2 position{ 0,0 };
 	Vector2 velocity{ 0,0 };
-	float lifespan{ 0 };
-	std::array<uint8_t, 4> color{ {255, 0, 0, 0} };
+	float m_lifespan{ 0 };
+	Color m_color{ 255, 0, 0, 0 };
+	bool m_isActive = true;
 
 	Particle() = default;
 
@@ -21,25 +23,25 @@ struct Particle
 	Particle(Vector2 position, Vector2 velocity, float lifespan) :
 		position{ position },
 		velocity{ velocity },
-		lifespan{ lifespan }
+		m_lifespan{ lifespan }
 	{};
 
-	Particle(Vector2 position, Vector2 velocity, float lifespan, const std::array<uint8_t, 4>& color) :
+	Particle(Vector2 position, Vector2 velocity, float lifespan, const Color& color) :
 		position{ position },
 		velocity{ velocity },
-		lifespan{ lifespan },
-		color{ color }
+		m_lifespan{ lifespan },
+		m_color{ color }
 	{};
 
-	Particle(Vector2 position, Vector2 velocity, const std::array<uint8_t, 4>& color) :
+	Particle(Vector2 position, Vector2 velocity, const Color& color) :
 		position{ position },
 		velocity{ velocity },
-		color{ color }
+		m_color{ color }
 	{};
 
 
 
 	void Update(float dt);
-	void Draw(Renderer& renderer);
+	void const Draw(Renderer& renderer);
 
 };

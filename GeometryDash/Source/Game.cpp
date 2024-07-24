@@ -4,68 +4,132 @@
 #include "Player.h"
 #include "Object.h"
 #include "ModelData.h"
+#include "ParticleManager.h"
+
+#include <memory>
+#include <iostream>
 
 void Game::Initialize()
 {
+	g_engine.Initialize();
+	m_scene = new Scene();
+	m_particleManager = new ParticleManager();
 
+	m_smallFont = new Font();
+	m_smallFont->Load("Minercraftory.ttf", 15);
+
+	m_mediumFont = new Font();
+	m_mediumFont->Load("Minercraftory.ttf", 30);
+
+	m_largeFont = new Font();
+	m_largeFont->Load("Minercraftory.ttf", 60);
 }
 
 void Game::Shutdown()
 {
+
+}
+
+void Game::Start()
+{
+	Start(m_state);
+}
+
+void Game::Start(eState state)
+{
+
+	
+	m_ended = false;
+	if (m_scene)
+	{
+		m_scene->ClearActors();
+	}
+	m_allText.clear();
+	m_particleManager->ClearDeathParticles();
+	
+
+	m_state = state;
+
+	switch (m_state)
+	{
+		case Game::eState::Title:
+		{
+			RunTitle();
+		}
+		break;
+
+		case Game::eState::Level1:
+		{
+
+		}
+		break;
+
+		case Game::eState::Level2:
+		{
+
+		}
+		break;
+
+		case Game::eState::Level3:
+		{
+
+		}
+		break;
+
+		case Game::eState::Endless:
+		{
+			RunGame(eState::Endless);
+		}
+		break;
+
+		default:
+
+			break;
+	}
 }
 
 void Game::Update(float dt)
 {
+	g_engine.Update();
+	m_particleManager->Update(dt);
 
 	m_scene->Update(dt, m_progressSpeed);
+}
+
+void Game::Draw(Renderer& renderer)
+{
+	for (Text* text : m_allText)
+	{
+		text->Draw(g_engine.GetRenderer());
+	}
+	
+	m_particleManager->Draw(g_engine.GetRenderer());
+	m_scene->Draw(g_engine.GetRenderer(), m_drawHitboxes);
 }
 
 void Game::CreateRandomPlatforms(int amount, Scene* scene)
 {
 	Color color{ 1, 1, 0 };
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < amount; i++)
 	{
 		int randomHeight = random(400, 550);
-		Transform transform1{ { 1200 + 200 * i , randomHeight }, 0 };
+		Transform transform1{ { 1400 + 200 * i , randomHeight }, 0 };
 		std::vector<Vector2> basePlatePoints
 		{
 			{-50 , -20 }, {-50, 0}, {50, 0}, {50, -20}, {-50, -20}
 		};
 		Model* model = new Model{ basePlatePoints, color };
-		Object* basePlate = new Object(transform1, model, basePlatePoints);
-		scene->AddActor(basePlate);
+		auto basePlate = std::make_unique<Object>(transform1, model, basePlatePoints);
+		scene->AddActor(std::move(basePlate));
 	}
 }
 
-void Game::Draw(Renderer& renderer)
-{
-	switch (m_state)
-	{
-	case Game::eState::Title:
-	{
 
-	}
-		break;
-	case Game::eState::Level1:
-	{
 
-	}
-		break;
-	case Game::eState::Level2:
-	{
 
-	}
-		break;
-	case Game::eState::Level3:
-	{
 
-	}
-		break;
-	default:
-		break;
-	}
-	m_scene->Draw(renderer, m_drawHitboxes);
-}
+
+
 
 std::vector<std::vector<Vector2>>* Game::DrawMode()
 {
@@ -83,7 +147,7 @@ std::vector<std::vector<Vector2>>* Game::DrawMode()
 		std::cout << line << "\n";
 	}*/
 
-	g_engine.Initialize();
+
 
 	std::vector<Vector2> currentPoints;
 	std::vector<std::vector<Vector2>> allPoints;
@@ -155,7 +219,7 @@ std::vector<std::vector<Vector2>>* Game::DrawMode()
 		g_engine.GetRenderer().SetColor(0, 0, 0, 0);
 		g_engine.GetRenderer().BeginFrame();
 
-		g_engine.GetRenderer().SetColor(500, 0, 500, 1);
+		g_engine.GetRenderer().SetColor((uint8_t)500, (uint8_t)0, (uint8_t)500, (uint8_t)1);
 
 		// Draw current shape
 		for (int i = 0; currentPoints.size() > 1 && i < currentPoints.size() - 1; i++)
@@ -211,24 +275,24 @@ std::vector<std::vector<Vector2>>* Game::DrawMode()
 
 
 
-void Game::RunGame(int level)
+void Game::RunGame(eState state)
 {
 
-	g_engine.Initialize();
+	
 
+	m_progressSpeed = m_finalProgressSpeed;
+
+	
 
 	//Create Systems
 
 
 
-	Time time;
-
-	Font* font = new Font();
-	font->Load("Finland.ttf", 20);
 
 
-	Text* text = new Text(font);
-	text->Create(g_engine.GetRenderer(), "Click to begin", Color{ 1.0f, 1.0f, 1.0f, 1.0f });
+	Text* text = new Text(m_smallFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, 40 });
+	text->Create(g_engine.GetRenderer(), "Score: 0", Color{ 1.0f, 1.0f, 1.0f, 1.0f });
+	m_allText.push_back(text);
 	
 
 	// create audio system
@@ -244,30 +308,19 @@ void Game::RunGame(int level)
 	g_engine.GetAudio().AddSound("snare.wav");
 
 
-	std::vector<Particle> particles;
-	float offset = 0.0f;
 
-
-
+	CreateRandomPlatforms(100, m_scene);
 
 	const int modelNum = 0;
-
-
-
-	Scene* scene = new Scene();
-
-	CreateRandomPlatforms(50, scene);
-
 	Color color{ 1, 1, 0 };
-
 
 	std::vector<std::vector<Vector2>> modelPoints = ModelData::GetFriendlyModel(modelNum);
 	std::vector<Vector2> playerHitbox = ModelData::GetFriendlyModel(modelNum)[0];
 	Model* model = new Model{ modelPoints, color };
 	Transform transform{ {  g_engine.GetRenderer().GetWidth() >> 1 , 400 }, 0};
 
-	Player* player = new Player(600, transform, model, playerHitbox);
-	scene->SetPlayer(player);
+	auto player = std::make_unique<Player>(600.0f, transform, model, playerHitbox);
+	m_scene->SetPlayer(player.get());
 
 	
 
@@ -276,54 +329,43 @@ void Game::RunGame(int level)
 	{
 		{-600 , -200 }, {-600, 0}, {600, 0}, {600, -200}, {-600, -200}
 	};
-	model = new Model{ basePlatePoints, color };
-	Object* basePlate = new Object(transform1, model, basePlatePoints);
-	scene->AddActor(basePlate);
+	Model* model1 = new Model { basePlatePoints, color };
+	auto basePlate1 = std::make_unique<Object>(transform1, model1, basePlatePoints);
+	m_scene->AddActor(std::move(basePlate1));
 
 
 	Transform transform2{ { 600 , 300 }, 0};
-	Object* basePlate2 = new Object(transform2, model, basePlatePoints);
-	scene->AddActor(basePlate2);
+	auto basePlate2 = std::make_unique<Object>(transform2, model1, basePlatePoints);
+	m_scene->AddActor(std::move(basePlate2));
 
 
 	g_engine.GetAudio().AddSound("bass.wav");
 
 
-	while (!g_engine.IsQuit())
+	while (!m_ended)
 	{
 
 
-		time.Tick();
-		g_engine.Update();
+		Update(g_engine.GetTime().GetDeltaTime());
+		
 
-		scene->Update(time.GetDeltaTime(), m_progressSpeed);
+		m_progressSpeed += 5.0f * g_engine.GetTime().GetDeltaTime();
+
 
 		if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_Q) && !g_engine.GetInput().GetPrevKeyDown(SDL_SCANCODE_Q)) {
 			g_engine.GetAudio().PlaySound("bass.wav");
 		}
 
 
-		//UPDATE
-
-
-		Vector2 mousePosition = g_engine.GetInput().GetMousePosition();
-		if (!g_engine.GetInput().GetMouseButtonDown(0) && g_engine.GetInput().GetPreviousMouseButtonDown(0))
+		if (m_scene->GetPlayer() && player->m_destroyed)
 		{
-			//std::array<uint8_t, 4> color{ {random(255), random(255), random(255), 0}};
-			for (int i = 0; i < 1000; i++)
-			{
-				//particles.push_back(Particle(mousePosition, randomOnUnitCircle() * randomf(10, 300), randomf(0.4f, 1), color));
-			}
+			m_particleManager->ExplodePlayer(player->GetTransform().position);
+			m_scene->SetPlayer(nullptr);
+			EndGame(state);
 		}
 
-		/*
-		for (Particle& particle : particles)
-		{
-			particle.Update(time.GetDeltaTime());
-			if (particle.position.x > 800) particle.position.x = 0;
-			if (particle.position.x < 0) particle.position.x = 800;
-		}
-		*/
+		
+
 
 		//DRAW
 		// clear screen
@@ -331,17 +373,85 @@ void Game::RunGame(int level)
 		g_engine.GetRenderer().BeginFrame();
 
 
-
-		// draw line
-
-
-		text->Draw(g_engine.GetRenderer(), 40, 40);
-
-		scene->Draw(g_engine.GetRenderer(), m_drawHitboxes);
-
+		//Draw the stuff
+		Draw(g_engine.GetRenderer());
 
 
 		// show screen
 		g_engine.GetRenderer().EndFrame();
 	}
+	
+	m_allText.clear();
+	text = new Text(m_mediumFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, g_engine.GetRenderer().GetHeight() >> 1 });
+	text->Create(g_engine.GetRenderer(), "Click to restart", Color{ 1.0f, 1.0f, 1.0f, 1.0f });
+	m_allText.push_back(text);
+
+	while (!g_engine.GetInput().GetPreviousMouseButtonDown(0))
+	{
+
+		Update(g_engine.GetTime().GetDeltaTime());
+
+		g_engine.GetRenderer().SetColor(0, 0, 0, 0);
+		g_engine.GetRenderer().BeginFrame();
+
+
+
+		// draw line
+		Draw(g_engine.GetRenderer());
+
+
+
+		// show screen
+		g_engine.GetRenderer().EndFrame();
+
+
+	}
+
+
+	Start(state);
+}
+
+
+
+
+
+
+void Game::RunTitle()
+{
+	eState chosenLevel = eState::Title;
+
+	Text* title = new Text(m_largeFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, g_engine.GetRenderer().GetHeight() / 3 });
+	title->Create(g_engine.GetRenderer(), "Trigonometry Run", Color{ 1.0f, 1.0f, 1.0f });
+	m_allText.push_back(title);
+
+	while (chosenLevel == eState::Title)
+	{
+
+		Update(g_engine.GetTime().GetDeltaTime());
+
+		g_engine.GetRenderer().SetColor(0, 0, 0, 0);
+		g_engine.GetRenderer().BeginFrame();
+
+
+
+		// draw line
+		Draw(g_engine.GetRenderer());
+
+
+
+		// show screen
+		g_engine.GetRenderer().EndFrame();
+
+
+	}
+
+	Start(chosenLevel);
+}
+
+
+
+void Game::EndGame(eState state)
+{
+	m_progressSpeed = 0.0f;
+	m_ended = true;
 }

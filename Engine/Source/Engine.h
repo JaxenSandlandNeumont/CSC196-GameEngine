@@ -17,6 +17,7 @@
 
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <memory>
 
 class Engine {
 
@@ -34,17 +35,17 @@ public:
 	Input& GetInput() { return *m_input; }
 	Time& GetTime() { return *m_time; }
 
-	bool IsQuit() { return quit; }
+	//bool IsQuit() { return quit; }
 
 
 private:
-	bool quit{ false };
+	//bool quit{ false };
 
-	Time* m_time{ nullptr };
+	std::shared_ptr<Time> m_time;
 
-	Renderer* m_renderer;
-	Input* m_input;
-	Audio* m_audio;
+	std::shared_ptr<Renderer> m_renderer;
+	std::shared_ptr<Input> m_input;
+	std::shared_ptr<Audio> m_audio;
 
 
 };

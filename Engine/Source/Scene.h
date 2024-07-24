@@ -1,6 +1,7 @@
 #pragma once
 #include <list>
 #include <vector>
+#include <memory>
 
 class Renderer;
 class Actor;
@@ -14,25 +15,27 @@ public:
 	void Update(float dt, float progressSpeed);
 	void Draw(Renderer& renderer, bool drawHitboxes);
 
-	void AddActor(Actor* actor);
-	void SetPlayer(Actor* actor) { m_player = actor; };
+	void AddActor(std::unique_ptr<Actor> actor);
+	void ClearActors() { m_actors.clear(); };
+	void SetPlayer(Actor* player) { m_player = player; };
+	Actor* GetPlayer() { return m_player; };
 
 	template<typename T>
-	T* GetActor();
+	std::unique_ptr<Actor> GetActor();
 
 protected:
-	Actor* m_player;
-	std::list <Actor*> m_actors;
+	Actor* m_player{ nullptr };
+	std::list<std::unique_ptr<Actor>> m_actors;
 	std::vector<std::vector<Vector2>> levelActors;
 
 };
 
 template<typename T>
-T* Scene::GetActor()
+std::unique_ptr<Actor> Scene::GetActor()
 {
-	for (Actor* actor : m_actors)
+	for (auto& actor : m_actors)
 	{
-		T* result = dynamic_cast<T*>(actor);
+		std::unique_ptr<Actor> result = dynamic_cast<std::unique_ptr<Actor>>(actor);
 		if (result) return result;
 	}
 

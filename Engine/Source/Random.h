@@ -18,3 +18,10 @@ inline Vector2 randomOnUnitCircle()
 
 	return Vector2{ Math::Cos(Math::DegToRad(angle)), Math::Sin(Math::DegToRad(angle)) };
 }
+
+inline Vector2 randomOnUnitCircle(int startDegree, int endDegree)
+{
+	float angle = randomf(startDegree, endDegree);
+
+	return Vector2{ Math::Cos(Math::DegToRad(angle)), Math::Sin(Math::DegToRad(angle)) };
+}

@@ -33,11 +33,10 @@ void Actor::SetHitBox(Vector2 hitbox[5])
 	{
 		m_hitbox[i] = hitbox[i];
 
-		xMin = (hitbox[i].x < xMin) ? hitbox[i].x : xMin;
-		xMax = (hitbox[i].x > xMax) ? hitbox[i].x : xMax;
-
-		yMin = (hitbox[i].y < yMin) ? hitbox[i].y : yMin;
-		yMax = (hitbox[i].y > yMax) ? hitbox[i].y : yMax;
+		xMin = (hitbox[i].x < (float)xMin) ? hitbox[i].x : (float)xMin;
+		xMax = (hitbox[i].x > (float)xMax) ? hitbox[i].x : (float)xMax;
+		yMin = (hitbox[i].y < (float)yMin) ? hitbox[i].y : (float)yMin;
+		yMax = (hitbox[i].y > (float)yMax) ? hitbox[i].y : (float)yMax;
 	}
 	
 
@@ -55,9 +54,9 @@ void Actor::SetHitBox(std::vector<Vector2> hitbox)
 	{
 		m_hitbox[i] = hitbox.at(i);
 
-		xMin = (hitbox.at(i).x < xMin) ? hitbox.at(i).x : xMin;
-		xMax = (hitbox.at(i).x > xMax) ? hitbox.at(i).x : xMax;
-		yMin = (hitbox.at(i).y < yMin) ? hitbox.at(i).y : yMin;
-		yMax = (hitbox.at(i).y > yMax) ? hitbox.at(i).y : yMax;
-	}
+		xMin = (hitbox.at(i).x < (float)xMin) ? hitbox.at(i).x : (float)xMin;
+		xMax = (hitbox.at(i).x > (float)xMax) ? hitbox.at(i).x : (float)xMax;
+		yMin = (hitbox.at(i).y < (float)yMin) ? hitbox.at(i).y : (float)yMin;
+		yMax = (hitbox.at(i).y > (float)yMax) ? hitbox.at(i).y : (float)yMax;
+	}											
 }

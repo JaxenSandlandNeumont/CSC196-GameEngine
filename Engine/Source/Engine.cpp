@@ -4,9 +4,9 @@ Engine g_engine;
 
 bool Engine::Initialize()
 {
-	m_renderer = new Renderer();
-	m_input = new Input();
-	m_audio = new Audio();
+	m_renderer = std::make_unique<Renderer>();
+	m_input = std::make_unique<Input>();
+	m_audio = std::make_unique<Audio>();
 
 	(*m_renderer).Initialize();
 	m_renderer->CreateWindow("Game Engine", 800, 600);
@@ -15,16 +15,20 @@ bool Engine::Initialize()
 
 	(*m_audio).Initialize();
 
-	m_time = new Time();
+	m_time = std::make_unique<Time>();
 
 	return true;
 }
 
 void Engine::Shutdown()
 {
+
 	m_renderer->Shutdown();
 	m_input->Shutdown();
 	m_audio->Shutdown();
+	//quit == true;
+
+	
 }
 
 void Engine::Update()
@@ -36,12 +40,12 @@ void Engine::Update()
 		if (event.type == SDL_QUIT)
 		{
 			Shutdown();
-			quit == true;
+
+			
 		}
 		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
 		{
 			Shutdown();
-			quit = true;
 		}
 	}
 	
