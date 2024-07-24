@@ -1,10 +1,11 @@
 #pragma once
+#include "Actor.h"
 #include <list>
 #include <vector>
 #include <memory>
 
 class Renderer;
-class Actor;
+
 struct Vector2;
 
 class Scene

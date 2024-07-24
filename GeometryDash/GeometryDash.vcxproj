@@ -155,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Button.cpp" />
     <ClCompile Include="Source\FileManager.cpp" />
     <ClCompile Include="Source\Game.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -168,6 +169,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Button.h" />
     <ClInclude Include="Source\FileManager.h" />
     <ClInclude Include="Source\Game.h" />
     <ClInclude Include="Source\ModelData.h" />

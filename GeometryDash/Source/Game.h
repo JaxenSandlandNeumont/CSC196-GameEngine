@@ -27,7 +27,7 @@ public:
 	void Update(float dt);
 	void Draw(Renderer& renderer);
 	void CreateRandomPlatforms(int amount, Scene* scene);
-	std::vector<std::vector<Vector2>>* DrawMode();
+	std::vector<std::vector<Vector2>> DrawMode();
 	void RunGame(eState state);
 	void RunTitle();
 	void EndGame(eState state);

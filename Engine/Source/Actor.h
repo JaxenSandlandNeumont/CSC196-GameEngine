@@ -22,6 +22,8 @@ public:
 		m_model{ model }
 	{}
 
+	~Actor() = default;
+
 	virtual void Update(float dt);
 	virtual void Draw(Renderer& renderer);
 	virtual void DrawHitbox(Renderer& renderer);
@@ -39,8 +41,8 @@ public:
 
 public:
 
-	void SetHitBox(Vector2 hitbox[5]);
-	void SetHitBox(std::vector<Vector2> hitbox);
+
+	
 	int xMin = -5;
 	int xMax = 5;
 	int yMin = -5;
@@ -52,7 +54,6 @@ protected:
 	bool m_destroyed{ false };
 	float m_lifespan = 0;
 	bool m_landed = false;
-	bool m_canJump = false;
 
 	Transform m_transform;
 	Vector2 m_velocity{ 0, 0 };

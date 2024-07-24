@@ -69,3 +69,40 @@ void Model::DrawShapes(Renderer& renderer, Transform& transform)
 		Model::Draw(shape, renderer, transform);
 	}
 }
+
+void Model::SetPoints(std::vector<std::vector<Vector2>> shapes)
+{
+	m_shapes = shapes;
+	for (std::vector<Vector2> shape : m_shapes)
+	{
+		Model::SetPoints(shape);
+	}
+}
+
+void Model::SetPoints(std::vector<Vector2> points)
+{
+	if (m_shapes.empty())
+	{
+		m_points = points;
+	}
+
+	SetHitbox(points);
+
+}
+
+
+
+void Model::SetHitbox(std::vector<Vector2> hitbox)
+{
+	m_hitbox = new Hitbox();
+
+	for (int i = 0; i < 5; i++)
+	{
+		m_hitbox->m_hitboxPoints[i] = hitbox.at(i);
+
+		m_hitbox->m_xMin = ((int)hitbox.at(i).x < m_hitbox->m_xMin) ? (int)hitbox.at(i).x : m_hitbox->m_xMin;
+		m_hitbox->m_xMax = ((int)hitbox.at(i).x > m_hitbox->m_xMax) ? (int)hitbox.at(i).x : m_hitbox->m_xMax;
+		m_hitbox->m_yMin = ((int)hitbox.at(i).y < m_hitbox->m_yMin) ? (int)hitbox.at(i).y : m_hitbox->m_yMin;
+		m_hitbox->m_yMax = ((int)hitbox.at(i).y > m_hitbox->m_yMax) ? (int)hitbox.at(i).y : m_hitbox->m_yMax;
+	}
+}

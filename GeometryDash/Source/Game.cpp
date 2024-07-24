@@ -4,9 +4,11 @@
 #include "Player.h"
 #include "Object.h"
 #include "ModelData.h"
+#include "Button.h"
 #include "ParticleManager.h"
 
 #include <memory>
+#include <vector>
 #include <iostream>
 
 void Game::Initialize()
@@ -83,8 +85,10 @@ void Game::Start(eState state)
 		break;
 
 		default:
+		{
 
-			break;
+		}
+		break;
 	}
 }
 
@@ -131,7 +135,7 @@ void Game::CreateRandomPlatforms(int amount, Scene* scene)
 
 
 
-std::vector<std::vector<Vector2>>* Game::DrawMode()
+std::vector<std::vector<Vector2>> Game::DrawMode()
 {
 	FileManager* lm = new FileManager();
 
@@ -162,7 +166,7 @@ std::vector<std::vector<Vector2>>* Game::DrawMode()
 
 
 		Vector2 mousePosition = g_engine.GetInput().GetMousePosition();
-		Vector2 clickedPosition = Vector2{ (int)mousePosition.x / gridPlacement, (int)mousePosition.y / gridPlacement } *gridPlacement + (gridPlacement / 2) - Vector2{ xOffput , 0 };
+		Vector2 clickedPosition = Vector2{ (int)mousePosition.x / gridPlacement, (int)mousePosition.y / gridPlacement } *(float)gridPlacement + (gridPlacement / 2.0f) - Vector2{ xOffput , 0 };
 
 		// Left click
 		if (g_engine.GetInput().GetMouseButtonDown(0) && g_engine.GetInput().GetPreviousMouseButtonDown(0))
@@ -251,7 +255,7 @@ std::vector<std::vector<Vector2>>* Game::DrawMode()
 
 	}
 
-	return &allPoints;
+	return allPoints;
 
 }
 
@@ -416,6 +420,9 @@ void Game::RunGame(eState state)
 
 
 
+
+
+
 void Game::RunTitle()
 {
 	eState chosenLevel = eState::Title;
@@ -423,6 +430,20 @@ void Game::RunTitle()
 	Text* title = new Text(m_largeFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, g_engine.GetRenderer().GetHeight() / 3 });
 	title->Create(g_engine.GetRenderer(), "Trigonometry Run", Color{ 1.0f, 1.0f, 1.0f });
 	m_allText.push_back(title);
+
+
+	Text* buttonText1 = new Text(m_largeFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, g_engine.GetRenderer().GetHeight() / 2 });
+	buttonText1->Create(g_engine.GetRenderer(), "Trigonometry Run", Color{ 1.0f, 1.0f, 1.0f });
+	Color color{ 1, 1, 1 };
+	std::vector<Vector2> buttonPoints
+	{
+		{-600 , -200 }, {-600, 0}, {600, 0}, {600, -200}, {-600, -200}
+	};
+	Model* model = new Model{ buttonPoints, color };
+	Transform transform{ {  g_engine.GetRenderer().GetWidth() >> 1 , 400 }, 0 };
+
+	auto button1 = std::make_unique<Button>(transform, &model, buttonText1);
+	m_scene->AddActor(std::move(button1));
 
 	while (chosenLevel == eState::Title)
 	{
@@ -447,6 +468,10 @@ void Game::RunTitle()
 
 	Start(chosenLevel);
 }
+
+
+
+
 
 
 

@@ -5,7 +5,7 @@ void ParticleManager::ExplodePlayer(Vector2 position)
 	Color color{ (uint8_t)255, (uint8_t)255, (uint8_t)255, 0};
 	for (int i = 0; i < 300; i++)
 	{
-		m_deathParticles.push_back(new Particle(position, randomOnUnitCircle() * randomf(300, 700), randomf(0.2f, 0.5f), color));
+		m_deathParticles.push_back(new Particle(position, randomOnUnitCircle() * randomf(600, 1000), randomf(0.1f, 0.3f), color));
 	}
 
 }

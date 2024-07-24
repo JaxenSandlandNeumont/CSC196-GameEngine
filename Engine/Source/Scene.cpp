@@ -31,7 +31,6 @@ void Scene::Update(float dt, float progressSpeed)
 	if (m_player)
 	{
 		m_player->m_landed = (playerCollisionLog == 1);
-		m_player->m_canJump = (playerCollisionLog >= 1);
 	}
 }
 

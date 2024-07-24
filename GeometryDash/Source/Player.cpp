@@ -21,7 +21,7 @@ void Player::Update(float dt)
 			m_jumpBoost2 = false;
 
 			thrust -= m_jumpSpeed;
-			std::cout << "Boost 0! \n";
+			std::cout << "Boost 0!\n";
 			m_jumpHoldTimer += g_engine.GetTime().GetDeltaTime();
 		}
 
@@ -43,7 +43,7 @@ void Player::Update(float dt)
 		{
 			m_jumpBoost2 = true;
 			thrust -= m_jumpSpeed / 6;
-			std::cout << "Boost 2! \n";
+			std::cout << "Boost 2!\n";
 		}
 		
 	}
