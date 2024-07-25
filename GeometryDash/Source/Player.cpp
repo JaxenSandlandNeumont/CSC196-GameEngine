@@ -91,16 +91,16 @@ void Player::Update(float dt)
 int Player::Collided(Actor* collider)
 {
 	
-	float colliderYMax = collider->yMax + collider->GetTransform().position.y;
-	float colliderYMin = collider->yMin + collider->GetTransform().position.y;
-	float colliderXMax = collider->xMax + collider->GetTransform().position.x;
-	float colliderXMin = collider->xMin + collider->GetTransform().position.x;
+	float colliderYMax = collider->GetModel()->m_yMax + collider->GetTransform().position.y;
+	float colliderYMin = collider->GetModel()->m_yMin + collider->GetTransform().position.y;
+	float colliderXMax = collider->GetModel()->m_xMax + collider->GetTransform().position.x;
+	float colliderXMin = collider->GetModel()->m_xMin + collider->GetTransform().position.x;
 
 
-	float selfYMin = yMin + GetTransform().position.y;
-	float selfYMax = yMax + GetTransform().position.y;
-	float selfXMax = xMax + GetTransform().position.x;
-	float selfXMin = xMin + GetTransform().position.x;
+	float selfYMin = GetModel()->m_yMin + GetTransform().position.y;
+	float selfYMax = GetModel()->m_yMax + GetTransform().position.y;
+	float selfXMax = GetModel()->m_xMax + GetTransform().position.x;
+	float selfXMin = GetModel()->m_xMin + GetTransform().position.x;
 
 
 	bool playerMinBelowColliderYMax = colliderYMax > selfYMin;
@@ -122,7 +122,7 @@ int Player::Collided(Actor* collider)
 
 		if (playerBottomDistanceFromColliderTop < 7 + speedAdjustment)
 		{
-			GetTransform().position.y = colliderYMin - yMax * 0.98f;
+			GetTransform().position.y = colliderYMin - GetModel()->m_yMax * 0.98f;
 			//std::cout << "Safe landing!\n";
 		}
 		else if (playerTopDistanceFromColliderBottom < 5 + speedAdjustment)

@@ -1,8 +1,10 @@
 #pragma once
 #include "Scene.h"
 #include "Text.h"
+#include "Button.h"
 #include "Engine.h"
 #include "ParticleManager.h"
+#include "Button.h"
 
 class Game
 {
@@ -30,19 +32,18 @@ public:
 	std::vector<std::vector<Vector2>> DrawMode();
 	void RunGame(eState state);
 	void RunTitle();
+	std::vector<Button*> CreateTitleScreen();
 	void EndGame(eState state);
 	bool GetGameEnded() { return m_ended; };
 
 protected:
 	eState m_state{ eState::Title };
 	Scene* m_scene{ nullptr };
-	float m_respawnTimer{ 0 };
-	float g_respawnTimer{ 0 };
 
 private:
 	float m_progressSpeed = 0.0f;
-	std::vector<Text*> m_allText{};
 	const float m_finalProgressSpeed{ 325.0f };
+
 	ParticleManager* m_particleManager{ nullptr };
 	bool m_drawHitboxes = false;
 	bool m_ended = false;

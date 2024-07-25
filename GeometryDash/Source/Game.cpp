@@ -4,7 +4,6 @@
 #include "Player.h"
 #include "Object.h"
 #include "ModelData.h"
-#include "Button.h"
 #include "ParticleManager.h"
 
 #include <memory>
@@ -44,9 +43,8 @@ void Game::Start(eState state)
 	m_ended = false;
 	if (m_scene)
 	{
-		m_scene->ClearActors();
+		m_scene->ClearAll();
 	}
-	m_allText.clear();
 	m_particleManager->ClearDeathParticles();
 	
 
@@ -98,15 +96,11 @@ void Game::Update(float dt)
 	m_particleManager->Update(dt);
 
 	m_scene->Update(dt, m_progressSpeed);
+
 }
 
 void Game::Draw(Renderer& renderer)
 {
-	for (Text* text : m_allText)
-	{
-		text->Draw(g_engine.GetRenderer());
-	}
-	
 	m_particleManager->Draw(g_engine.GetRenderer());
 	m_scene->Draw(g_engine.GetRenderer(), m_drawHitboxes);
 }
@@ -296,7 +290,7 @@ void Game::RunGame(eState state)
 
 	Text* text = new Text(m_smallFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, 40 });
 	text->Create(g_engine.GetRenderer(), "Score: 0", Color{ 1.0f, 1.0f, 1.0f, 1.0f });
-	m_allText.push_back(text);
+	m_scene->AddText(text);
 	
 
 	// create audio system
@@ -316,7 +310,7 @@ void Game::RunGame(eState state)
 	CreateRandomPlatforms(100, m_scene);
 
 	const int modelNum = 0;
-	Color color{ 1, 1, 0 };
+	Color color{ 0.5f, 1.0f, 0.5f };
 
 	std::vector<std::vector<Vector2>> modelPoints = ModelData::GetFriendlyModel(modelNum);
 	std::vector<Vector2> playerHitbox = ModelData::GetFriendlyModel(modelNum)[0];
@@ -327,13 +321,13 @@ void Game::RunGame(eState state)
 	m_scene->SetPlayer(player.get());
 
 	
-
+	Color objectColor{ 1.0f, 1.0f, 1.0f };
 	Transform transform1{ { 600 , 650 }, 0};
 	std::vector<Vector2> basePlatePoints
 	{
 		{-600 , -200 }, {-600, 0}, {600, 0}, {600, -200}, {-600, -200}
 	};
-	Model* model1 = new Model { basePlatePoints, color };
+	Model* model1 = new Model { basePlatePoints, objectColor };
 	auto basePlate1 = std::make_unique<Object>(transform1, model1, basePlatePoints);
 	m_scene->AddActor(std::move(basePlate1));
 
@@ -385,10 +379,10 @@ void Game::RunGame(eState state)
 		g_engine.GetRenderer().EndFrame();
 	}
 	
-	m_allText.clear();
+	m_scene->ClearText();
 	text = new Text(m_mediumFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, g_engine.GetRenderer().GetHeight() >> 1 });
 	text->Create(g_engine.GetRenderer(), "Click to restart", Color{ 1.0f, 1.0f, 1.0f, 1.0f });
-	m_allText.push_back(text);
+	m_scene->AddText(text);
 
 	while (!g_engine.GetInput().GetPreviousMouseButtonDown(0))
 	{
@@ -427,28 +421,30 @@ void Game::RunTitle()
 {
 	eState chosenLevel = eState::Title;
 
-	Text* title = new Text(m_largeFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, g_engine.GetRenderer().GetHeight() / 3 });
-	title->Create(g_engine.GetRenderer(), "Trigonometry Run", Color{ 1.0f, 1.0f, 1.0f });
-	m_allText.push_back(title);
-
-
-	Text* buttonText1 = new Text(m_largeFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, g_engine.GetRenderer().GetHeight() / 2 });
-	buttonText1->Create(g_engine.GetRenderer(), "Trigonometry Run", Color{ 1.0f, 1.0f, 1.0f });
-	Color color{ 1, 1, 1 };
-	std::vector<Vector2> buttonPoints
-	{
-		{-600 , -200 }, {-600, 0}, {600, 0}, {600, -200}, {-600, -200}
-	};
-	Model* model = new Model{ buttonPoints, color };
-	Transform transform{ {  g_engine.GetRenderer().GetWidth() >> 1 , 400 }, 0 };
-
-	auto button1 = std::make_unique<Button>(transform, &model, buttonText1);
-	m_scene->AddActor(std::move(button1));
+	std::vector<Button*> buttons = CreateTitleScreen();
 
 	while (chosenLevel == eState::Title)
 	{
-
 		Update(g_engine.GetTime().GetDeltaTime());
+
+
+		if (buttons[0]->ButtonClicked(g_engine.GetInput()))
+		{
+			chosenLevel = eState::Level1;
+		}
+		if (buttons[1]->ButtonClicked(g_engine.GetInput()))
+		{
+			chosenLevel = eState::Level2;
+		}
+		if (buttons[2]->ButtonClicked(g_engine.GetInput()))
+		{
+			chosenLevel = eState::Level3;
+		}
+		if (buttons[3]->ButtonClicked(g_engine.GetInput()))
+		{
+			chosenLevel = eState::Endless;
+		}
+
 
 		g_engine.GetRenderer().SetColor(0, 0, 0, 0);
 		g_engine.GetRenderer().BeginFrame();
@@ -466,7 +462,78 @@ void Game::RunTitle()
 
 	}
 
+	float fakeLoadingBuffer = 0.0f;
+
+	while (fakeLoadingBuffer < 1.0f)
+	{
+		fakeLoadingBuffer += g_engine.GetTime().GetDeltaTime();
+	}
+
 	Start(chosenLevel);
+}
+
+std::vector<Button*> Game::CreateTitleScreen()
+{
+	std::vector<Button*> buttons;
+
+
+	Text* title = new Text(m_largeFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, 130});
+	title->Create(g_engine.GetRenderer(), "Trigonometry Run", Color{ 1.0f, 1.0f, 1.0f });
+	m_scene->AddText(title);
+
+	Color white{ Color::colorPresets::white };
+	Color black{ Color::colorPresets::black };
+
+	Transform transform1{ {  g_engine.GetRenderer().GetWidth() >> 1 , 230 }, 0 };
+	Text* buttonText1 = new Text(m_mediumFont, transform1.position);
+	buttonText1->Create(g_engine.GetRenderer(), "Level 1", black);
+	Color bgColor1{ Color::colorPresets::green };
+	std::vector<Vector2> buttonPoints
+	{
+		{-100 , -30 }, {-100, 30}, {100, 30}, {100, -30}, {-100, -30}
+	};
+	Model* buttonModel = new Model{ buttonPoints, white };
+	auto button1 = std::make_unique<Button>(transform1, buttonModel, buttonText1, bgColor1);
+	Button* button1Ptr = button1.get();
+	m_scene->AddActor(std::move(button1));
+	buttons.push_back(button1Ptr);
+
+
+
+	Transform transform2{ {  g_engine.GetRenderer().GetWidth() >> 1 , 320 }, 0 };
+	Text* buttonText2 = new Text(m_mediumFont, transform2.position);
+	buttonText2->Create(g_engine.GetRenderer(), "Level 2", black);
+	Color bgColor2{ Color::colorPresets::yellow };
+	auto button2 = std::make_unique<Button>(transform2, buttonModel, buttonText2, bgColor2);
+	Button* button2Ptr = button2.get();
+	m_scene->AddActor(std::move(button2));
+	buttons.push_back(button2Ptr);
+
+
+
+	Transform transform3{ {  g_engine.GetRenderer().GetWidth() >> 1 , 410 }, 0 };
+	Text* buttonText3 = new Text(m_mediumFont, transform3.position);
+	buttonText3->Create(g_engine.GetRenderer(), "Level 3", black);
+	Color bgColor3{ Color::colorPresets::red };
+	auto button3 = std::make_unique<Button>(transform3, buttonModel, buttonText3, bgColor3);
+	Button* button3Ptr = button3.get();
+	m_scene->AddActor(std::move(button3));
+	buttons.push_back(button3Ptr);
+
+
+
+	Transform transform4{ {  g_engine.GetRenderer().GetWidth() >> 1 , 500 }, 0 };
+	Text* buttonText4 = new Text(m_mediumFont, transform4.position);
+	buttonText4->Create(g_engine.GetRenderer(), "Endless", white);
+	Color bgColor4{ Color::colorPresets::black };
+	auto button4 = std::make_unique<Button>(transform4, buttonModel, buttonText4, bgColor4);
+	Button* button4Ptr = button4.get();
+	m_scene->AddActor(std::move(button4));
+	buttons.push_back(button4Ptr);
+
+
+	return buttons;
+
 }
 
 

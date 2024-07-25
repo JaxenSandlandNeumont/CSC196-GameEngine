@@ -1,12 +1,12 @@
 #pragma once
 #include "Transform.h"
 #include "Vector2.h"
+#include "Model.h"
 #include <string>
 #include <vector>
 #include <memory>
 
 class Scene;
-class Model;
 class Renderer;
 class vector;
 
@@ -15,7 +15,9 @@ class Actor {
 public:
 	Actor() = default;
 
-	Actor(const Transform& transform) : m_transform{ transform } {}
+	Actor(const Transform& transform) : 
+		m_transform{ transform } 
+	{}
 
 	Actor(const Transform& transform, Model* model) :
 		m_transform{ transform },
@@ -31,6 +33,7 @@ public:
 	void SetDamping(float damping) { m_damping = damping; }
 	void SetLifespan(float lifespan) { m_lifespan = lifespan; }
 	void SetTag(const std::string& tag) { m_tag = tag; }
+	Model* GetModel() { return m_model; }
 	const std::string& GetTag() { return m_tag; }
 
 	Transform& GetTransform() { return m_transform; }
@@ -42,11 +45,6 @@ public:
 public:
 
 
-	
-	int xMin = -5;
-	int xMax = 5;
-	int yMin = -5;
-	int yMax = 5;
 	Vector2 m_hitbox[5] = { {-5, -5},{-5, 5},{5, 5},{5, -5}, { -5,-5 } };
 
 protected:
@@ -55,7 +53,7 @@ protected:
 	float m_lifespan = 0;
 	bool m_landed = false;
 
-	Transform m_transform;
+	Transform m_transform{};
 	Vector2 m_velocity{ 0, 0 };
 
 	float m_damping = 0;

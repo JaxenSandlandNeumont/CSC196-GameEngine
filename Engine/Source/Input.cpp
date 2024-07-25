@@ -1,5 +1,6 @@
 #include "Input.h"
 #include <SDL.h>
+#include <iostream>
 
 bool Input::Initialize()
 {
@@ -34,6 +35,7 @@ void Input::Update()
 
 	m_mousePosition.x = (float)x;
 	m_mousePosition.y = (float)y;
+	//std::cout << m_mousePosition.x << " " << m_mousePosition.y << "\n";
 
 	m_prevMouseButtonState = m_mouseButtonState;
 

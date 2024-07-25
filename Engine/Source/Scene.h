@@ -5,6 +5,7 @@
 #include <memory>
 
 class Renderer;
+class Text;
 
 struct Vector2;
 
@@ -17,7 +18,9 @@ public:
 	void Draw(Renderer& renderer, bool drawHitboxes);
 
 	void AddActor(std::unique_ptr<Actor> actor);
-	void ClearActors() { m_actors.clear(); };
+	void AddText(Text* text);
+	void ClearAll() { m_actors.clear(); m_allText.clear(); };
+	void ClearText() { m_allText.clear(); };
 	void SetPlayer(Actor* player) { m_player = player; };
 	Actor* GetPlayer() { return m_player; };
 
@@ -28,6 +31,9 @@ protected:
 	Actor* m_player{ nullptr };
 	std::list<std::unique_ptr<Actor>> m_actors;
 	std::vector<std::vector<Vector2>> levelActors;
+
+private:
+	std::vector<Text*> m_allText{};
 
 };
 

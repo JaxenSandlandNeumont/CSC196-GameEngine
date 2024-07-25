@@ -55,7 +55,6 @@ void Scene::Draw(Renderer& renderer, bool drawHitboxes)
 
 
 
-
 	for (auto& actor : m_actors)
 	{
 
@@ -70,9 +69,19 @@ void Scene::Draw(Renderer& renderer, bool drawHitboxes)
 			actor->DrawHitbox(renderer);
 		}
 	}
+
+	for (Text* text : m_allText)
+	{
+		text->Draw(g_engine.GetRenderer());
+	}
 }
 
 void Scene::AddActor(std::unique_ptr<Actor> actor)
 {
 	m_actors.push_back(std::move(actor));
+}
+
+void Scene::AddText(Text* text)
+{
+	m_allText.push_back(text);
 }
