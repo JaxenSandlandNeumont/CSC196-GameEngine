@@ -1,12 +1,22 @@
 #pragma once
 #include "Actor.h"
-
+#include "ModelData.h"
 #include <vector>
+
+/*
+enum class Gamemodes
+{
+	cube,
+	wave
+};
+*/
 
 class Player : public Actor
 {
 
 public:
+
+
 
 	Player() = default;
 	Player(const Transform& transform) : Actor{ transform } {}
@@ -36,14 +46,23 @@ public:
 	{}
 
 	void Update(float dt);
+	void CubeUpdate(float dt, bool clicked);
+	void ShipUpdate(float dt, bool clicked);
 	int Collided(Actor* collider) override;
+
+	void SetGamemode(uint8_t gamemode) { m_gamemode = gamemode; }
+	uint8_t GetGamemode() { return m_gamemode; }
+
+	void SetModel(ModelPreset modelPreset);
 
 
 	bool m_destroyed = false;
 
 private:
 
-	
+	uint8_t m_gamemode = 0;
+
+	bool m_shipGoingUp{ true };
 
 	float m_jumpSpeed = 100.0f;
 	float m_maxFallSpeed = 700.0f;

@@ -10,10 +10,31 @@ void Player::Update(float dt)
 {
 	float thrust = 0;
 
-
-	if (g_engine.GetInput().GetPreviousMouseButtonDown(0)
-		|| g_engine.GetInput().GetPrevKeyDown(SDL_SCANCODE_SPACE))
+	bool clicked = g_engine.GetInput().GetPreviousMouseButtonDown(0)
+		|| g_engine.GetInput().GetPrevKeyDown(SDL_SCANCODE_SPACE);
+	if (m_gamemode == 0)
 	{
+		CubeUpdate(dt, clicked);
+	}
+	else if (m_gamemode == 1)
+	{
+		ShipUpdate(dt, clicked);
+	}
+
+
+	m_transform.position.y = Math::Wrap(m_transform.position.y, (float)g_engine.GetRenderer().GetHeight());
+
+
+	Actor::Update(dt);
+}
+
+void Player::CubeUpdate(float dt, bool clicked)
+{
+	float thrust = 0;
+
+	if (clicked)
+	{
+
 		if (m_landed && !m_jumpHoldTimer)
 		{
 			m_jumpHoldTimer = 0.0f;
@@ -21,7 +42,6 @@ void Player::Update(float dt)
 			m_jumpBoost2 = false;
 
 			thrust -= m_jumpSpeed;
-			std::cout << "Boost 0!\n";
 			m_jumpHoldTimer += g_engine.GetTime().GetDeltaTime();
 		}
 
@@ -36,16 +56,14 @@ void Player::Update(float dt)
 		{
 			m_jumpBoost1 = true;
 			thrust -= m_jumpSpeed / 4;
-			std::cout << "Boost 1!\n ";
 		}
 
 		if (m_jumpHoldTimer > 0.2f && !m_jumpBoost2)
 		{
 			m_jumpBoost2 = true;
 			thrust -= m_jumpSpeed / 6;
-			std::cout << "Boost 2!\n";
 		}
-		
+
 	}
 	else
 	{
@@ -54,18 +72,19 @@ void Player::Update(float dt)
 		m_jumpBoost2 = false;
 	}
 
+	Vector2 acceleration = (Vector2{ 0.0f, 1.0f } * thrust); // Make sure it's not moving rhe player on the X axis
 
-	Vector2 acceleration = (Vector2{ 0.0f, 1.0f } * thrust);
 	if (!m_landed)
 	{
-		
-		acceleration += (Vector2(0.0f, 1.0f) * (m_gravity * g_engine.GetTime().GetDeltaTime())); //Add gravity
+		acceleration += (Vector2(0.0f, 1.0f) * (m_gravity * g_engine.GetTime().GetDeltaTime())); // Add gravity
 		m_velocity += acceleration;
 
 		if (m_velocity.y > m_maxFallSpeed)
 		{
-			m_velocity.y = m_maxFallSpeed;
+			m_velocity.y = m_maxFallSpeed;  // Limit fall speed
 		}
+
+
 	}
 	else
 	{
@@ -78,15 +97,31 @@ void Player::Update(float dt)
 			m_velocity += acceleration;
 		}
 	}
-
-	
-
-	m_transform.position.x = Math::Wrap(m_transform.position.x, (float)g_engine.GetRenderer().GetWidth());
-	m_transform.position.y = Math::Wrap(m_transform.position.y, (float)g_engine.GetRenderer().GetHeight());
-
-
-	Actor::Update(dt);
 }
+
+
+
+
+void Player::ShipUpdate(float dt, bool clicked)
+{
+	if (m_shipGoingUp)
+	{
+		m_velocity.y = -m_jumpSpeed;
+	}
+	else
+	{
+		m_velocity.y = m_jumpSpeed;
+	}
+	if (g_engine.GetInput().GetMouseButtonDown(0) && !g_engine.GetInput().GetPreviousMouseButtonDown(0))
+	{
+		m_shipGoingUp = !m_shipGoingUp;
+	}
+
+}
+
+
+
+
 
 int Player::Collided(Actor* collider)
 {
@@ -145,5 +180,10 @@ int Player::Collided(Actor* collider)
 		return 0;
 	}
 	return 0;
+}
+
+void Player::SetModel(ModelPreset modelPreset)
+{
+	m_model = new Model(modelPreset.m_model, modelPreset.m_color);
 }
 

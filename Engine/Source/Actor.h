@@ -15,11 +15,8 @@ class Actor {
 public:
 	Actor() = default;
 
-	Actor(const Transform& transform) : 
-		m_transform{ transform } 
-	{}
 
-	Actor(const Transform& transform, Model* model) :
+	Actor(const Transform& transform, Model* model = nullptr) :
 		m_transform{ transform },
 		m_model{ model }
 	{}

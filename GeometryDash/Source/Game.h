@@ -33,14 +33,16 @@ public:
 	void RunGame(eState state);
 	void RunTitle();
 	std::vector<Button*> CreateTitleScreen();
+	std::vector<Button*> CreateGameOverScreen();
 	void EndGame(eState state);
-	bool GetGameEnded() { return m_ended; };
+	bool GetGameEnded() const { return m_ended; };
 
 protected:
 	eState m_state{ eState::Title };
 	Scene* m_scene{ nullptr };
 
 private:
+
 	float m_progressSpeed = 0.0f;
 	const float m_finalProgressSpeed{ 325.0f };
 
@@ -51,4 +53,7 @@ private:
 	Font* m_mediumFont;
 	Font* m_largeFont;
 
+
+	std::vector<float> m_changeGamemodes{};
+	float m_progress;
 };

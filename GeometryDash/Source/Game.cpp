@@ -96,7 +96,6 @@ void Game::Update(float dt)
 	m_particleManager->Update(dt);
 
 	m_scene->Update(dt, m_progressSpeed);
-
 }
 
 void Game::Draw(Renderer& renderer)
@@ -107,18 +106,50 @@ void Game::Draw(Renderer& renderer)
 
 void Game::CreateRandomPlatforms(int amount, Scene* scene)
 {
+	std::vector<Vector2> basicPlatformPoints
+	{
+		{-50 , -20 }, {-50, 0}, {50, 0}, {50, -20}, {-50, -20}
+	};
+	std::vector<Vector2> basicObstructionPoints
+	{
+		{-15 , -15 }, {-15, 15}, {15, 15}, {15, -15}, {-15, -15}
+	};
+
+	uint8_t gamemode = 0;
+
 	Color color{ 1, 1, 0 };
+
+	float totalDistance = 1400.0f;
+
 	for (int i = 0; i < amount; i++)
 	{
-		int randomHeight = random(400, 550);
-		Transform transform1{ { 1400 + 200 * i , randomHeight }, 0 };
-		std::vector<Vector2> basePlatePoints
+		if (i == amount / 2)
 		{
-			{-50 , -20 }, {-50, 0}, {50, 0}, {50, -20}, {-50, -20}
-		};
-		Model* model = new Model{ basePlatePoints, color };
-		auto basePlate = std::make_unique<Object>(transform1, model, basePlatePoints);
-		scene->AddActor(std::move(basePlate));
+			gamemode = 1;
+			m_changeGamemodes.push_back(totalDistance);
+		}
+
+		int randomHeight = random(400, 550);
+		int randomDistance = random(150, 250);
+		totalDistance += randomDistance;
+
+		if (gamemode == 0)
+		{
+
+			Transform transform{ Vector2{ totalDistance , (float)randomHeight }, 0 };
+			Model* model = new Model{ basicPlatformPoints, color };
+			auto basicPlatform = std::make_unique<Object>(transform, model, basicPlatformPoints);
+			scene->AddActor(std::move(basicPlatform));
+			
+		}
+		else if (gamemode == 1)
+		{
+			randomHeight = random((int)((float)g_engine.GetRenderer().GetHeight() * 0.1f), (int)((float)g_engine.GetRenderer().GetHeight() * 0.9f));
+			Transform transform{ Vector2{ totalDistance , (float)randomHeight }, 0 };
+			Model* model = new Model{ basicObstructionPoints, color };
+			auto basicObstruction = std::make_unique<Object>(transform, model, basicObstructionPoints);
+			scene->AddActor(std::move(basicObstruction));
+		}
 	}
 }
 
@@ -307,17 +338,15 @@ void Game::RunGame(eState state)
 
 
 
-	CreateRandomPlatforms(100, m_scene);
+	CreateRandomPlatforms(10, m_scene);
 
-	const int modelNum = 0;
-	Color color{ 0.5f, 1.0f, 0.5f };
 
-	std::vector<std::vector<Vector2>> modelPoints = ModelData::GetFriendlyModel(modelNum);
-	std::vector<Vector2> playerHitbox = ModelData::GetFriendlyModel(modelNum)[0];
-	Model* model = new Model{ modelPoints, color };
+	ModelPreset modelPreset = ModelData::GetFriendlyModel(0);
+	Model* model = new Model{ modelPreset.m_model, modelPreset.m_color };
 	Transform transform{ {  g_engine.GetRenderer().GetWidth() >> 1 , 400 }, 0};
 
-	auto player = std::make_unique<Player>(600.0f, transform, model, playerHitbox);
+	auto player = std::make_unique<Player>(600.0f, transform, model, modelPreset.m_hitbox );
+	Player* playerPtr = player.get();
 	m_scene->SetPlayer(player.get());
 
 	
@@ -342,6 +371,23 @@ void Game::RunGame(eState state)
 
 	while (!m_ended)
 	{
+		
+		m_progress += g_engine.GetTime().GetDeltaTime() * m_progressSpeed;
+		if (!m_changeGamemodes.empty() && m_progress > m_changeGamemodes[0])
+		{
+			if (playerPtr->GetGamemode() == 0)
+			{
+				playerPtr->SetGamemode(1);
+			}
+			else if (playerPtr->GetGamemode() == 1)
+			{
+				playerPtr->SetGamemode(0);
+			}
+
+			ModelPreset modelPreset = ModelData::GetFriendlyModel(playerPtr->GetGamemode());
+			playerPtr->SetModel(modelPreset);
+			m_changeGamemodes.erase(m_changeGamemodes.begin());
+		}
 
 
 		Update(g_engine.GetTime().GetDeltaTime());
@@ -380,14 +426,30 @@ void Game::RunGame(eState state)
 	}
 	
 	m_scene->ClearText();
-	text = new Text(m_mediumFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, g_engine.GetRenderer().GetHeight() >> 1 });
-	text->Create(g_engine.GetRenderer(), "Click to restart", Color{ 1.0f, 1.0f, 1.0f, 1.0f });
-	m_scene->AddText(text);
 
-	while (!g_engine.GetInput().GetPreviousMouseButtonDown(0))
+	std::vector<Button*> buttons = CreateGameOverScreen();
+
+	while (true)
 	{
 
+
+
 		Update(g_engine.GetTime().GetDeltaTime());
+
+
+		
+		if (buttons[0]->ButtonClicked(g_engine.GetInput())) // Retry button
+		{
+			Start(state);
+			break;
+		}
+		if (buttons[1]->ButtonClicked(g_engine.GetInput())) // End button
+		{
+			Start(eState::Title);
+			break;
+		}
+
+
 
 		g_engine.GetRenderer().SetColor(0, 0, 0, 0);
 		g_engine.GetRenderer().BeginFrame();
@@ -404,9 +466,6 @@ void Game::RunGame(eState state)
 
 
 	}
-
-
-	Start(state);
 }
 
 
@@ -534,6 +593,52 @@ std::vector<Button*> Game::CreateTitleScreen()
 
 	return buttons;
 
+}
+
+
+
+
+std::vector<Button*> Game::CreateGameOverScreen()
+{
+	std::vector<Button*> buttons;
+
+
+	Text* title = new Text(m_largeFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, 200 });
+	title->Create(g_engine.GetRenderer(), "Game Over", Color::colorPresets::red);
+	m_scene->AddText(title);
+
+	Color white{ Color::colorPresets::white };
+	Color black{ Color::colorPresets::black };
+
+
+	Transform transform1{ {  g_engine.GetRenderer().GetWidth() >> 1 , 300 }, 0 };
+	Text* buttonText1 = new Text(m_mediumFont, transform1.position);
+	buttonText1->Create(g_engine.GetRenderer(), "Retry", black);
+	Color bgColor1{ Color::colorPresets::cyan };
+	std::vector<Vector2> buttonPoints
+	{
+		{-100 , -30 }, {-100, 30}, {100, 30}, {100, -30}, {-100, -30}
+	};
+	Model* buttonModel = new Model{ buttonPoints, white };
+	auto button1 = std::make_unique<Button>(transform1, buttonModel, buttonText1, bgColor1);
+	Button* button1Ptr = button1.get();
+	m_scene->AddActor(std::move(button1));
+	buttons.push_back(button1Ptr);
+
+
+
+	Transform transform2{ {  g_engine.GetRenderer().GetWidth() >> 1 , 400 }, 0 };
+	Text* buttonText2 = new Text(m_mediumFont, transform2.position);
+	buttonText2->Create(g_engine.GetRenderer(), "Exit Level", white);
+	Color bgColor2{ Color::colorPresets::black };
+	auto button2 = std::make_unique<Button>(transform2, buttonModel, buttonText2, bgColor2);
+	Button* button2Ptr = button2.get();
+	m_scene->AddActor(std::move(button2));
+	buttons.push_back(button2Ptr);
+
+
+
+	return buttons;
 }
 
 

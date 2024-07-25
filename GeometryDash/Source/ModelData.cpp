@@ -3,7 +3,7 @@
 
 // -----------Friendly model------------------------------------
 
-const std::vector<std::vector<Vector2>> ModelData::m_cube0 =
+std::vector<std::vector<Vector2>> ModelData::m_cube0 =
 {
     {
         { -25,25},{25,25},{25, -25},{-25,-25},{-25,25}
@@ -13,14 +13,14 @@ const std::vector<std::vector<Vector2>> ModelData::m_cube0 =
     }
 };
 
-const std::vector<std::vector<Vector2>> ModelData::m_ship1 =
+std::vector<std::vector<Vector2>> ModelData::m_ship1 =
 {
     {
-        {5, 0}, {-5, 3}, {-3, 0}, {-5, -3}, {5, 0}
+        {25, 0}, {-25, 15}, {-15, 0}, {-25, -15}, {25, 0}
     }
 };
 
-const std::vector<std::vector<Vector2>> ModelData::m_ship2 =
+std::vector<std::vector<Vector2>> ModelData::m_ship2 =
 {
     {
         {2.0f, 0.9f}, {-5, 3}, {-3, 0}, {-5, -3}, {2.0f, -0.9f} //Body
@@ -70,3 +70,44 @@ const std::vector<std::vector<Vector2>> ModelData::m_spike0 =
         {-25, -25}, {0, 25}, {25, -25}, {-25, -25}
     }
 };
+
+ModelPreset ModelData::GetFriendlyModel(uint8_t gamemode)
+{
+    ModelPreset modelPreset{};
+    modelPreset.m_hitbox = m_cube0.at(0);
+
+    if (gamemode == 0)
+    {
+        modelPreset.m_model = m_cube0;
+        modelPreset.m_color = Color::colorPresets::green;
+    }
+    else if (gamemode == 1)
+    {
+        modelPreset.m_model = m_ship1;
+        modelPreset.m_color = Color::colorPresets::yellow;
+    }
+
+    return modelPreset;
+}
+
+const std::vector<std::vector<Vector2>>& ModelData::GetLevelModel(uint8_t modelNum)
+{
+    return m_spike0;
+    /*
+    static const std::vector<std::vector<Vector2>> emptyModel{};
+    switch (modelNum)
+    {
+    case 0:
+        return m_spike0;
+    case 1:
+        return m_spike1;
+    case 2:
+        return m_spike2;
+    case 3:
+        return m_platform3;
+    default:
+        return emptyModel;
+    }
+    return emptyModel;
+    */
+}

@@ -10,8 +10,6 @@ class Model
 public:
 
 
-	//Model() = default;
-
 	Model(std::vector<Vector2>& points, Color& color) :
 		m_color{ color },
 		m_points{ points }
