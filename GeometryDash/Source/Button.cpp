@@ -34,11 +34,12 @@ bool Button::MouseHoveringOver(Vector2 mousePosition)
 
 bool Button::ButtonClicked(Input& input)
 {
+
     bool hovering = MouseHoveringOver(input.GetMousePosition());
     bool clicked = !input.GetMouseButtonDown(0) && input.GetPreviousMouseButtonDown(0);
     if (clicked && hovering)
     {
-        std::cout << "clicked!";
+        g_engine.GetAudio().PlaySound("buttonPressSound.wav");
     }
     return hovering && m_clickable && clicked;
 }

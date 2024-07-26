@@ -24,6 +24,17 @@ void Game::Initialize()
 
 	m_largeFont = new Font();
 	m_largeFont->Load("Minercraftory.ttf", 60);
+
+	//std::vector<FMOD::Sound*> sounds;
+	//FMOD::Sound* sound = nullptr;
+
+	g_engine.GetAudio().AddSound("jumpSound.wav");
+	g_engine.GetAudio().AddSound("buttonPressSound.wav");
+	g_engine.GetAudio().AddSound("changeGamemodeSound.wav");
+	g_engine.GetAudio().AddSound("deathSound.wav");
+	g_engine.GetAudio().AddSound("waveTurnSound.wav");
+	g_engine.GetAudio().AddSound("winSound.wav");
+
 }
 
 void Game::Shutdown()
@@ -44,6 +55,7 @@ void Game::Start(eState state)
 	if (m_scene)
 	{
 		m_scene->ClearAll();
+		m_progress = 0;
 	}
 	m_particleManager->ClearDeathParticles();
 	
@@ -114,23 +126,45 @@ void Game::CreateRandomPlatforms(int amount, Scene* scene)
 	{
 		{-15 , -15 }, {-15, 15}, {15, 15}, {15, -15}, {-15, -15}
 	};
+	std::vector<Vector2> longObstructionPointsTop
+	{
+		{-25 , -15 }, {-25, 500}, {25, 500}, {25, -15}, {-25, -15}
+	};
+	std::vector<Vector2> longObstructionPointsBot
+	{
+		{-25 , -500 }, {-25, 15}, {25, 15}, {25, -500}, {-25, -500}
+	};
 
 	uint8_t gamemode = 0;
 
-	Color color{ 1, 1, 0 };
+	Color color{ 1, 1, 1 };
 
 	float totalDistance = 1400.0f;
 
 	for (int i = 0; i < amount; i++)
 	{
-		if (i == amount / 2)
+		int randomHeight = random(400, 550);
+		int randomDistance = random(250, 400);
+
+		int gamemodeChangeChance = random(0, 10);
+
+		if (gamemodeChangeChance == 0)
 		{
-			gamemode = 1;
-			m_changeGamemodes.push_back(totalDistance);
+
+			gamemode = (gamemode + 1) % 2;
+			CreateChangeGamemodeBarrier(randomDistance + (int)totalDistance, gamemode);
+			if (gamemode == 1)
+			{
+				randomDistance *= 2;
+			}
+			totalDistance += randomDistance;
+			continue;
 		}
 
-		int randomHeight = random(400, 550);
-		int randomDistance = random(150, 250);
+		if (i == 0)
+		{
+			randomDistance = random(0, 100);
+		}
 		totalDistance += randomDistance;
 
 		if (gamemode == 0)
@@ -144,7 +178,36 @@ void Game::CreateRandomPlatforms(int amount, Scene* scene)
 		}
 		else if (gamemode == 1)
 		{
-			randomHeight = random((int)((float)g_engine.GetRenderer().GetHeight() * 0.1f), (int)((float)g_engine.GetRenderer().GetHeight() * 0.9f));
+
+
+
+			{
+
+				randomHeight = random((int)((float)g_engine.GetRenderer().GetHeight() * 0.1f), (int)((float)g_engine.GetRenderer().GetHeight() * 0.9f));
+
+				
+				Model* model = new Model{ basicObstructionPoints, color };
+
+				int longObstructionChance = random(0, 6);
+				if (longObstructionChance == 5) //Top obstruction
+				{
+					randomHeight = random((int)((float)g_engine.GetRenderer().GetHeight() * 0.5f), (int)((float)g_engine.GetRenderer().GetHeight() * 0.8f));
+					model = new Model{ longObstructionPointsTop, color };
+				}
+				else if (longObstructionChance == 4) //Bottom obstruction
+				{
+					randomHeight = random((int)((float)g_engine.GetRenderer().GetHeight() * 0.2f), (int)((float)g_engine.GetRenderer().GetHeight() * 0.5f));
+					model = new Model{ longObstructionPointsBot, color };
+				}
+				Transform transform{ Vector2{ totalDistance - randomDistance / 2 , (float)randomHeight }, 0 };
+
+				auto basicObstruction = std::make_unique<Object>(transform, model, basicObstructionPoints);
+				scene->AddActor(std::move(basicObstruction));
+				
+			}
+
+			randomHeight = random((int)((float)g_engine.GetRenderer().GetHeight() * 0.05f), (int)((float)g_engine.GetRenderer().GetHeight() * 0.95f));
+			randomDistance = random(100, 250) / 2;
 			Transform transform{ Vector2{ totalDistance , (float)randomHeight }, 0 };
 			Model* model = new Model{ basicObstructionPoints, color };
 			auto basicObstruction = std::make_unique<Object>(transform, model, basicObstructionPoints);
@@ -311,39 +374,21 @@ void Game::RunGame(eState state)
 
 	m_progressSpeed = m_finalProgressSpeed;
 
-	
+	int score = 0;
 
-	//Create Systems
-
-
-
-
-
-	Text* text = new Text(m_smallFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, 40 });
-	text->Create(g_engine.GetRenderer(), "Score: 0", Color{ 1.0f, 1.0f, 1.0f, 1.0f });
-	m_scene->AddText(text);
-	
-
-	// create audio system
-
-	std::vector<FMOD::Sound*> sounds;
-	FMOD::Sound* sound = nullptr;
-
-	g_engine.GetAudio().AddSound("bass.wav");
-	g_engine.GetAudio().AddSound("clap.wav");
-	g_engine.GetAudio().AddSound("close-hat.wav");
-	g_engine.GetAudio().AddSound("cowbell.wav");
-	g_engine.GetAudio().AddSound("open-hat.wav");
-	g_engine.GetAudio().AddSound("snare.wav");
+	Text* scoreText = new Text(m_smallFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, 40 });
+	scoreText->Create(g_engine.GetRenderer(), std::to_string(score), Color{1.0f, 1.0f, 1.0f, 1.0f});
+	m_scene->AddText(scoreText);
 
 
+	CreateRandomPlatforms(100, m_scene);
 
-	CreateRandomPlatforms(10, m_scene);
+
 
 
 	ModelPreset modelPreset = ModelData::GetFriendlyModel(0);
 	Model* model = new Model{ modelPreset.m_model, modelPreset.m_color };
-	Transform transform{ {  g_engine.GetRenderer().GetWidth() >> 1 , 400 }, 0};
+	Transform transform{ {  g_engine.GetRenderer().GetWidth() >> 2 , 400 }, 0};
 
 	auto player = std::make_unique<Player>(600.0f, transform, model, modelPreset.m_hitbox );
 	Player* playerPtr = player.get();
@@ -361,50 +406,36 @@ void Game::RunGame(eState state)
 	m_scene->AddActor(std::move(basePlate1));
 
 
-	Transform transform2{ { 600 , 300 }, 0};
-	auto basePlate2 = std::make_unique<Object>(transform2, model1, basePlatePoints);
-	m_scene->AddActor(std::move(basePlate2));
+	//Transform transform2{ { 600 , 300 }, 0};
+	//auto basePlate2 = std::make_unique<Object>(transform2, model1, basePlatePoints);
+	//m_scene->AddActor(std::move(basePlate2));
 
-
-	g_engine.GetAudio().AddSound("bass.wav");
-
+	float timeSinceLastSecond = 0.0f;
 
 	while (!m_ended)
 	{
-		
-		m_progress += g_engine.GetTime().GetDeltaTime() * m_progressSpeed;
-		if (!m_changeGamemodes.empty() && m_progress > m_changeGamemodes[0])
-		{
-			if (playerPtr->GetGamemode() == 0)
-			{
-				playerPtr->SetGamemode(1);
-			}
-			else if (playerPtr->GetGamemode() == 1)
-			{
-				playerPtr->SetGamemode(0);
-			}
-
-			ModelPreset modelPreset = ModelData::GetFriendlyModel(playerPtr->GetGamemode());
-			playerPtr->SetModel(modelPreset);
-			m_changeGamemodes.erase(m_changeGamemodes.begin());
-		}
-
 
 		Update(g_engine.GetTime().GetDeltaTime());
-		
+
+
+		timeSinceLastSecond += g_engine.GetTime().GetDeltaTime();
+
+		if (timeSinceLastSecond >= 0.2f)
+		{
+			timeSinceLastSecond = 0.0f;
+			score += 1;
+			UpdateScoreText(scoreText, score);
+		}		
+
 
 		m_progressSpeed += 5.0f * g_engine.GetTime().GetDeltaTime();
-
-
-		if (g_engine.GetInput().GetKeyDown(SDL_SCANCODE_Q) && !g_engine.GetInput().GetPrevKeyDown(SDL_SCANCODE_Q)) {
-			g_engine.GetAudio().PlaySound("bass.wav");
-		}
 
 
 		if (m_scene->GetPlayer() && player->m_destroyed)
 		{
 			m_particleManager->ExplodePlayer(player->GetTransform().position);
 			m_scene->SetPlayer(nullptr);
+			g_engine.GetAudio().PlaySound("deathSound.wav");
 			EndGame(state);
 		}
 
@@ -427,7 +458,7 @@ void Game::RunGame(eState state)
 	
 	m_scene->ClearText();
 
-	std::vector<Button*> buttons = CreateGameOverScreen();
+	std::vector<Button*> buttons = CreateGameOverScreen(score);
 
 	while (true)
 	{
@@ -523,9 +554,23 @@ void Game::RunTitle()
 
 	float fakeLoadingBuffer = 0.0f;
 
-	while (fakeLoadingBuffer < 1.0f)
+	while (fakeLoadingBuffer < 0.2f)
 	{
 		fakeLoadingBuffer += g_engine.GetTime().GetDeltaTime();
+
+		Update(g_engine.GetTime().GetDeltaTime());
+		g_engine.GetRenderer().SetColor(0, 0, 0, 0);
+		g_engine.GetRenderer().BeginFrame();
+
+
+
+		// draw line
+		Draw(g_engine.GetRenderer());
+
+
+
+		// show screen
+		g_engine.GetRenderer().EndFrame();
 	}
 
 	Start(chosenLevel);
@@ -598,7 +643,7 @@ std::vector<Button*> Game::CreateTitleScreen()
 
 
 
-std::vector<Button*> Game::CreateGameOverScreen()
+std::vector<Button*> Game::CreateGameOverScreen(int finalScore)
 {
 	std::vector<Button*> buttons;
 
@@ -607,11 +652,15 @@ std::vector<Button*> Game::CreateGameOverScreen()
 	title->Create(g_engine.GetRenderer(), "Game Over", Color::colorPresets::red);
 	m_scene->AddText(title);
 
+	Text* scoreText = new Text(m_mediumFont, Vector2{ g_engine.GetRenderer().GetWidth() >> 1, 270 });
+	scoreText->Create(g_engine.GetRenderer(), std::to_string(finalScore) + " Points", Color::colorPresets::white);
+	m_scene->AddText(scoreText);
+
 	Color white{ Color::colorPresets::white };
 	Color black{ Color::colorPresets::black };
 
 
-	Transform transform1{ {  g_engine.GetRenderer().GetWidth() >> 1 , 300 }, 0 };
+	Transform transform1{ {  g_engine.GetRenderer().GetWidth() >> 1 , 370 }, 0 };
 	Text* buttonText1 = new Text(m_mediumFont, transform1.position);
 	buttonText1->Create(g_engine.GetRenderer(), "Retry", black);
 	Color bgColor1{ Color::colorPresets::cyan };
@@ -627,7 +676,7 @@ std::vector<Button*> Game::CreateGameOverScreen()
 
 
 
-	Transform transform2{ {  g_engine.GetRenderer().GetWidth() >> 1 , 400 }, 0 };
+	Transform transform2{ {  g_engine.GetRenderer().GetWidth() >> 1 , 470 }, 0 };
 	Text* buttonText2 = new Text(m_mediumFont, transform2.position);
 	buttonText2->Create(g_engine.GetRenderer(), "Exit Level", white);
 	Color bgColor2{ Color::colorPresets::black };
@@ -651,4 +700,31 @@ void Game::EndGame(eState state)
 {
 	m_progressSpeed = 0.0f;
 	m_ended = true;
+}
+
+void Game::CreateChangeGamemodeBarrier(int x, uint8_t toGamemode)
+{
+
+	Color borderColor{ Color::colorPresets::white };
+	Color bgColor{ Color::colorPresets::green };
+	
+	if (toGamemode == 1)
+	{
+		bgColor = Color::colorPresets::yellow;
+	}
+
+	float height = g_engine.GetRenderer().GetHeight() * 1.2f;
+
+	std::vector<Vector2> barrierPoints
+	{
+		{-10.0f, -height / 2.0f }, {-10.0f, height / 2.0f }, {10.0f, -height / 2.0f}, {10.0f, -height / 2.0f}, {-10.0f, -height / 2.0f}
+	};
+
+	Model* model = new Model{ barrierPoints, borderColor };
+	Transform transform{ {  x , g_engine.GetRenderer().GetHeight() >> 1 }, 0 };
+
+	auto barrier = std::make_unique<GamemodeBarrier>(transform, model, bgColor, toGamemode);
+	barrier->SetTag("Barrier");
+	m_scene->AddActor(std::move(barrier));
+
 }

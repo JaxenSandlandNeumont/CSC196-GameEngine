@@ -158,6 +158,7 @@
     <ClCompile Include="Source\Button.cpp" />
     <ClCompile Include="Source\FileManager.cpp" />
     <ClCompile Include="Source\Game.cpp" />
+    <ClCompile Include="Source\GamemodeBarrier.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\ModelData.cpp" />
     <ClCompile Include="Source\ParticleManager.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="Source\Button.h" />
     <ClInclude Include="Source\FileManager.h" />
     <ClInclude Include="Source\Game.h" />
+    <ClInclude Include="Source\GamemodeBarrier.h" />
     <ClInclude Include="Source\ModelData.h" />
     <ClInclude Include="Source\Object.h" />
     <ClInclude Include="Source\ParticleManager.h" />

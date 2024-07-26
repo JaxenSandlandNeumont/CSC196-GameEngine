@@ -24,6 +24,6 @@ void Actor::Draw(Renderer& renderer)
 }
 void Actor::DrawHitbox(Renderer& renderer)
 {
-	m_model->Draw(m_hitbox, renderer, m_transform);
+	m_model->Draw(m_model->m_hitboxPoints, renderer, m_transform);
 }
 

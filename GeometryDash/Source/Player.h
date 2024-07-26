@@ -21,12 +21,6 @@ public:
 	Player() = default;
 	Player(const Transform& transform) : Actor{ transform } {}
 
-	Player(float jumpSpeed, const Transform& transform, Model* model, Vector2 hitbox[5]) :
-		Actor{ transform , model },
-		m_jumpSpeed{ jumpSpeed }
-
-	{}
-
 	Player(float jumpSpeed, const Transform& transform, Model* model, std::vector<Vector2> hitbox) :
 		Actor{ transform , model },
 		m_jumpSpeed{ jumpSpeed }
@@ -37,20 +31,12 @@ public:
 		Actor{ transform, model }
 	{}
 
-	Player(const Transform& transform, Model* model, Vector2 hitbox[5]) :
-		Actor{ transform, model }
-	{}
-
-	Player(const Transform& transform, Model* model, std::vector<Vector2> hitbox) :
-		Actor{ transform, model }
-	{}
-
 	void Update(float dt);
 	void CubeUpdate(float dt, bool clicked);
 	void ShipUpdate(float dt, bool clicked);
 	int Collided(Actor* collider) override;
 
-	void SetGamemode(uint8_t gamemode) { m_gamemode = gamemode; }
+	void ChangeGamemode(uint8_t gamemode);
 	uint8_t GetGamemode() { return m_gamemode; }
 
 	void SetModel(ModelPreset modelPreset);
@@ -66,7 +52,10 @@ private:
 
 	float m_jumpSpeed = 100.0f;
 	float m_maxFallSpeed = 700.0f;
-	float m_gravity = 2000.0f;
+
+	float m_cubeGravity = 2000.0f;
+
+	float m_waveSpeed = m_jumpSpeed * 0.7f;
 
 	float m_jumpHoldTimer = 0.0f;
 	bool m_jumpBoost1 = false;
